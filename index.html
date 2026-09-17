@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Flee · Simulatore pricing</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html,body{margin:0;padding:0;background:#F1F3F6;}
+  #root{min-height:100vh;}
+  #msg{font:15px/1.6 system-ui,sans-serif;color:#3A4A68;padding:48px 32px;}
+  #msg b{color:#B23A2F;}
+</style>
+</head>
+<body>
+<div id="root"><div id="msg">Caricamento del simulatore…</div></div>
+<script>
+  window.addEventListener("error", function (e) {
+    var r = document.getElementById("root");
+    if (r) r.innerHTML = '<div id="msg"><b>Errore di caricamento.</b><br>' +
+      (e.message || "") + '<br><br>Se sei offline, il simulatore non parte: ' +
+      'React viene scaricato da internet al primo avvio.</div>';
+  });
+</script>
+<script src="app.js"></script>
+</body>
+</html>

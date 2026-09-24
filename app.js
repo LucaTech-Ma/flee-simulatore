@@ -5,10 +5,10 @@ const C = {
   paper: "#F1F3F6",
   card: "#FFFFFF",
   line: "#D8DEE7",
-  att: "#B23A2F",
-  nuovo: "#1B4F9C",
-  ayv: "#D99A2B",
   ok: "#1E7A5A",
+  att: "#B23A2F",
+  ayv: "#D99A2B",
+  nuovo: "#1B4F9C",
   mute: "#78849A",
   forn: "#2E4A7D",
   cts: "#6E88B5",
@@ -18,586 +18,453 @@ const C = {
 };
 const FONT = `'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
 const MONO = `'IBM Plex Mono', 'SF Mono', Menlo, monospace`;
-const eur = (n, d = 0) => (n < 0 ? "−€" : "€") + Math.abs(n).toLocaleString("it-IT", {
+const eur = (n, d = 0) => (n < 0 ? "\u2212\u20ac" : "\u20ac") + Math.abs(n).toLocaleString("it-IT", {
   minimumFractionDigits: d,
   maximumFractionDigits: d
 });
-const ORDINI = [{
-  m: "RAV4 HEV",
-  f: "Kinto",
-  r: {
-    36: 449,
-    48: 445,
-    60: 429
-  },
-  a: {
-    36: 787,
-    48: 705,
-    60: 667
-  },
-  ir: 0.1500,
-  n: 0,
-  stim: true
-}, {
-  m: "MB GLC Coupé",
-  f: "Athlon",
-  r: {
-    36: 692.62,
-    48: 651.17
-  },
-  a: {
-    36: 932,
-    48: 852,
-    60: 800
-  },
-  ir: 0.2180,
-  n: 2,
-  stim: true
-}, {
-  m: "Dacia Bigster",
-  f: "Mobilize",
-  r: {
-    36: 278.02,
-    48: 285.67
-  },
-  a: {
-    36: 472,
-    48: 439,
-    60: 418
-  },
-  ir: 0.1390,
-  n: 1,
-  stim: true
-}, {
-  m: "BMW X1",
-  f: "Athlon",
-  r: {
-    36: 498.95,
-    48: 468.73
-  },
-  a: {
-    36: 667,
-    48: 628,
-    60: 604
-  },
-  ir: 0.1700,
-  n: 2,
-  stim: true
-}, {
-  m: "Toyota C-HR",
-  f: "Kinto",
-  r: {
-    36: 329,
-    48: 319,
-    60: 319
-  },
-  a: {
-    36: 479,
-    48: 442,
-    60: 428
-  },
-  ir: 0.1465,
-  n: 45,
-  stim: false
-}, {
-  m: "Yaris Cross",
-  f: "Kinto",
-  r: {
-    36: 299,
-    48: 289,
-    60: 279
-  },
-  a: {
-    36: 447,
-    48: 413,
-    60: 397
-  },
-  ir: 0.1476,
-  n: 29,
-  stim: false
-}, {
-  m: "Aygo X Hybrid",
-  f: "Kinto",
-  r: {
-    36: 279,
-    48: 259,
-    60: 229
-  },
-  a: {
-    36: 381,
-    48: 346,
-    60: 334
-  },
-  ir: 0.1260,
-  n: 67,
-  stim: false
-}, {
-  m: "Alfa Tonale",
-  f: "Leasys",
-  r: {
-    36: 414.06,
-    48: 397.18
-  },
-  a: {
-    36: 508,
-    48: 478,
-    60: 465
-  },
-  ir: 0.1433,
-  n: 6,
-  stim: false
-}, {
-  m: "Pandina Hybrid",
-  f: "Leasys",
-  r: {
-    36: 206.48,
-    48: 186.67
-  },
-  a: {
-    36: 275,
-    48: 259,
-    60: 243
-  },
-  ir: 0.1220,
-  n: 1,
-  stim: true
-}, {
-  m: "Renault Clio",
-  f: "Mobilize",
-  r: {
-    36: 273.18,
-    48: 254.48
-  },
-  a: {
-    36: 323,
-    48: 310,
-    60: 296
-  },
-  ir: 0.1178,
-  n: 15,
-  stim: false
-}];
 
-/* ay = Ayvens 48 mesi, quotatore, netto IVA */
-const PTF = [{
-  m: "Aygo X",
-  n: 67,
-  fissa: 196.33,
-  km: 332,
-  vp: 0.0816,
-  ir: 0.126,
-  fo: 244.07,
-  kmin: 7,
-  kmax: 941,
-  ay: 346
+/* Catalogo luglio-agosto 2026. r36/r48 = canone fornitore netto IVA. ir = tariffa assicurativa \u20ac/km.
+   a36/a48 = prezzo di mercato: reale dove quotato, altrimenti stimato dal listino per fascia. */
+const CATALOGO = [{
+  m: "MB GLC COUPÈ GLC 220d MHEV 4M…",
+  f: "Athlon",
+  li: 61655,
+  ir: 0.216,
+  r36: 665.04,
+  r48: 631.6,
+  a36: 932,
+  a48: 852,
+  src: "reale",
+  seg: "Premium"
 }, {
-  m: "C-HR",
-  n: 45,
-  fissa: 219.01,
-  km: 556,
-  vp: 0.0943,
-  ir: 0.1465,
-  fo: 275.41,
-  kmin: 10,
-  kmax: 1241,
-  ay: 442
+  m: "MB GLC GLC 200 4M Mild Hyb. A…",
+  f: "Athlon",
+  li: 53711,
+  ir: 0.216,
+  r36: 652.14,
+  r48: 609.49,
+  a36: 811,
+  a48: 751,
+  src: "stimato",
+  seg: "Premium"
 }, {
-  m: "Yaris Cross",
-  n: 29,
-  fissa: 229.79,
-  km: 531,
-  vp: 0.099,
-  ir: 0.1476,
-  fo: 285.14,
-  kmin: 94,
-  kmax: 1034,
-  ay: 413
+  m: "Audi Q3 SPORTBACK TDI 110 kW …",
+  f: "Athlon",
+  li: 41206,
+  ir: 0.169,
+  r36: 523.83,
+  r48: 494.72,
+  a36: 663,
+  a48: 614,
+  src: "stimato",
+  seg: "SUV medi"
 }, {
-  m: "Yaris",
-  n: 28,
-  fissa: 199.86,
-  km: 501,
-  vp: 0.0785,
-  ir: 0.129,
-  fo: 258.80,
-  kmin: 85,
-  kmax: 1197,
-  ay: 0
+  m: "Audi Q3 SPORTBACK TFSI 110 Kw…",
+  f: "Athlon",
+  li: 40141,
+  ir: 0.169,
+  r36: 526.24,
+  r48: 498.69,
+  a36: 646,
+  a48: 598,
+  src: "stimato",
+  seg: "SUV medi"
 }, {
-  m: "Panda",
-  n: 18,
-  fissa: 157.00,
-  km: 327,
-  vp: 0.0638,
-  ir: 0.1358,
-  fo: 183.06,
-  kmin: 106,
-  kmax: 928,
-  ay: 0
+  m: "Audi Q3 TDI 110 kW S tronic B…",
+  f: "Athlon",
+  li: 39796,
+  ir: 0.169,
+  r36: 581.83,
+  r48: 535.66,
+  a36: 641,
+  a48: 593,
+  src: "stimato",
+  seg: "SUV medi"
 }, {
-  m: "Clio",
-  n: 15,
-  fissa: 185.71,
-  km: 413,
-  vp: 0.0793,
-  ir: 0.1178,
-  fo: 235.69,
-  kmin: 120,
-  kmax: 1026,
-  ay: 310
+  m: "BMW X1 sDrive 18d X-Line DCT",
+  f: "Athlon",
+  li: 39361,
+  ir: 0.169,
+  r36: 480.81,
+  r48: 454.45,
+  a36: 667,
+  a48: 628,
+  src: "reale",
+  seg: "SUV medi"
 }, {
-  m: "208",
-  n: 10,
-  fissa: 198.23,
-  km: 410,
-  vp: 0.0878,
-  ir: 0.1218,
-  fo: 256.66,
-  kmin: 86,
-  kmax: 807,
-  ay: 0
+  m: "Audi Q3 TFSI 110 kW S tronic …",
+  f: "Athlon",
+  li: 38730,
+  ir: 0.169,
+  r36: 563.64,
+  r48: 526.65,
+  a36: 624,
+  a48: 577,
+  src: "stimato",
+  seg: "SUV medi"
 }, {
-  m: "Renault 5",
-  n: 6,
-  fissa: 220.45,
-  km: 492,
-  vp: 0.0942,
-  ir: 0.114,
-  fo: 274.01,
-  kmin: 212,
-  kmax: 1080,
-  ay: 0
+  m: "RAV4 2.5 HEV E-CVT",
+  f: "Kinto",
+  li: 37164,
+  ir: 0.169,
+  r36: 445.0,
+  r48: 445.0,
+  a36: 787,
+  a48: 705,
+  src: "reale",
+  seg: "SUV medi"
 }, {
-  m: "Tonale",
-  n: 6,
-  fissa: 274.85,
-  km: 797,
-  vp: 0.0957,
-  ir: 0.1433,
-  fo: 317.67,
-  kmin: 585,
-  kmax: 1059,
-  ay: 478
+  m: "TESLA MODEL 3 75 kWh Premium …",
+  f: "Athlon",
+  li: 36057,
+  ir: 0.169,
+  r36: 658.52,
+  r48: 586.89,
+  a36: 581,
+  a48: 538,
+  src: "stimato",
+  seg: "SUV medi"
 }, {
-  m: "C3",
-  n: 5,
-  fissa: 197.54,
-  km: 417,
-  vp: 0.0855,
-  ir: 0.1384,
-  fo: 241.66,
-  kmin: 112,
-  kmax: 823,
-  ay: 0
-}, {
-  m: "Junior",
-  n: 5,
-  fissa: 266.05,
-  km: 314,
-  vp: 0.1106,
+  m: "LBX 1.5 136 Emotion 2WD",
+  f: "Kinto",
+  li: 33238,
   ir: 0.144,
-  fo: 313.04,
-  kmin: 142,
-  kmax: 476,
-  ay: 0
+  r36: 385.0,
+  r48: 355.0,
+  a36: 535,
+  a48: 496,
+  src: "stimato",
+  seg: "SUV medi"
 }, {
-  m: "2008",
-  n: 4,
-  fissa: 220.23,
-  km: 493,
-  vp: 0.1033,
-  ir: 0.1685,
-  fo: 303.52,
-  kmin: 14,
-  kmax: 938,
-  ay: 0
+  m: "BYD SEAL U DM-I 1.5 217cv Boo…",
+  f: "Athlon",
+  li: 32787,
+  ir: 0.144,
+  r36: 482.85,
+  r48: 446.38,
+  a36: 528,
+  a48: 489,
+  src: "stimato",
+  seg: "SUV medi"
 }, {
-  m: "Captur",
-  n: 4,
-  fissa: 193.43,
-  km: 515,
-  vp: 0.0785,
-  ir: 0.136,
-  fo: 236.59,
-  kmin: 379,
-  kmax: 598,
-  ay: 0
+  m: "Toyota C-HR 1.8 HV E-CVT Trend",
+  f: "Kinto",
+  li: 31230,
+  ir: 0.144,
+  r36: 329.0,
+  r48: 319.0,
+  a36: 479,
+  a48: 442,
+  src: "reale",
+  seg: "SUV medi"
 }, {
-  m: "3008",
-  n: 4,
-  fissa: 260.34,
-  km: 675,
-  vp: 0.111,
-  ir: 0.1462,
-  fo: 337.63,
-  kmin: 216,
-  kmax: 1058,
-  ay: 0
+  m: "Audi A3 TFSI 85 kW S tronic B…",
+  f: "Athlon",
+  li: 29313,
+  ir: 0.144,
+  r36: 418.26,
+  r48: 393.54,
+  a36: 513,
+  a48: 475,
+  src: "stimato",
+  seg: "Compatte e crossover"
+}, {
+  m: "NISSAN QASHQAI 1.3 MHEV 158 N…",
+  f: "Athlon",
+  li: 29184,
+  ir: 0.144,
+  r36: 363.87,
+  r48: 347.85,
+  a36: 511,
+  a48: 473,
+  src: "stimato",
+  seg: "Compatte e crossover"
+}, {
+  m: "DACIA BIGSTER Journey  full h…",
+  f: "Mobilize",
+  li: 26683,
+  ir: 0.144,
+  r36: 278.02,
+  r48: 285.67,
+  a36: 472,
+  a48: 439,
+  src: "reale",
+  seg: "Compatte e crossover"
+}, {
+  m: "YARIS CROSS 1.5 HEV ICON E-CVT",
+  f: "Kinto",
+  li: 25779,
+  ir: 0.144,
+  r36: 295.0,
+  r48: 289.0,
+  a36: 447,
+  a48: 413,
+  src: "reale",
+  seg: "Compatte e crossover"
+}, {
+  m: "CAPTUR evolution ECO-G 120 MY…",
+  f: "Mobilize",
+  li: 20186,
+  ir: 0.144,
+  r36: 267.05,
+  r48: 250.23,
+  a36: 353,
+  a48: 327,
+  src: "stimato",
+  seg: "Compatte e crossover"
+}, {
+  m: "Yaris Active MY25",
+  f: "Kinto",
+  li: 20164,
+  ir: 0.144,
+  r36: 282.0,
+  r48: 266.0,
+  a36: 353,
+  a48: 327,
+  src: "stimato",
+  seg: "Compatte e crossover"
+}, {
+  m: "Aygo X 115 Icon e-CVT",
+  f: "Kinto",
+  li: 18361,
+  ir: 0.122,
+  r36: 260.0,
+  r48: 259.0,
+  a36: 381,
+  a48: 346,
+  src: "reale",
+  seg: "City car"
+}, {
+  m: "CLIO EVOLUTION TCE 115CV",
+  f: "Mobilize",
+  li: 16088,
+  ir: 0.122,
+  r36: 273.18,
+  r48: 254.48,
+  a36: 323,
+  a48: 310,
+  src: "reale",
+  seg: "City car"
+}, {
+  m: "FIAT PANDINA 1.0 FireFly 65cv…",
+  f: "Athlon",
+  li: 14221,
+  ir: 0.122,
+  r36: 277.7,
+  r48: 253.87,
+  a36: 275,
+  a48: 259,
+  src: "reale",
+  seg: "City car"
+}, {
+  m: "Alfa Romeo TONALE 1.6 Diesel …",
+  f: "Leasys",
+  li: 0,
+  ir: 0.169,
+  r36: 414.06,
+  r48: 397.18,
+  a36: 508,
+  a48: 478,
+  src: "reale",
+  seg: "n.d."
+}, {
+  m: "Fiat GRANDE PANDA Business",
+  f: "Leasys",
+  li: 0,
+  ir: 0.122,
+  r36: 295.62,
+  r48: 282.43,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "Fiat 600 1.2 110cv Icon",
+  f: "Leasys",
+  li: 0,
+  ir: 0.144,
+  r36: 338.06,
+  r48: 291.0,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "Fiat 500 Icon",
+  f: "Leasys",
+  li: 0,
+  ir: 0.122,
+  r36: 276.21,
+  r48: 261.88,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "Peugeot 208 Style Turbo benzi…",
+  f: "Leasys",
+  li: 0,
+  ir: 0.122,
+  r36: 248.71,
+  r48: 227.55,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "Jeep COMPASS 1.2 Turbo MHEV 1…",
+  f: "Leasys",
+  li: 0,
+  ir: 0.169,
+  r36: 503.79,
+  r48: 496.27,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "Citroen C3 110 cv Automatico …",
+  f: "Leasys",
+  li: 0,
+  ir: 0.122,
+  r36: 292.21,
+  r48: 285.28,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "C10 HYBRID 1.5 28.4KWH Design",
+  f: "Leasys",
+  li: 0,
+  ir: 0.144,
+  r36: 437.06,
+  r48: 459.48,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "JUNIOR 1.2 145CV eDCT6 ibrida…",
+  f: "Leasys",
+  li: 0,
+  ir: 0.144,
+  r36: 304.74,
+  r48: 319.7,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "DS 7 BlueHDi 130 Automatica P…",
+  f: "Leasys",
+  li: 0,
+  ir: 0.169,
+  r36: 385.73,
+  r48: 392.65,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "PANDINA 1.0 FireFly 65cv S&S …",
+  f: "Leasys",
+  li: 0,
+  ir: 0.122,
+  r36: 206.48,
+  r48: 186.67,
+  a36: 275,
+  a48: 259,
+  src: "reale",
+  seg: "n.d."
+}, {
+  m: "Q5 TDI 150kW quattro S tronic…",
+  f: "Leasys",
+  li: 0,
+  ir: 0.169,
+  r36: 700.17,
+  r48: 704.73,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
+}, {
+  m: "TIGUAN 2.0 TDI 110KW SCR Edit…",
+  f: "Leasys",
+  li: 0,
+  ir: 0.169,
+  r36: 450.52,
+  r48: 430.2,
+  a36: 0,
+  a48: 0,
+  src: "assente",
+  seg: "n.d."
 }];
-
-/* quota = % del margine caricata sul km (il resto va sulla rata fissa) */
-const SCENARI = {
-  "A · tutto sul fisso": {
-    quota: 0,
-    kmIncl: 0
-  },
-  "B · FLEE 3.0": {
-    quota: 50,
-    kmIncl: 250
-  },
-  "C · tutto sul km": {
-    quota: 100,
-    kmIncl: 0
-  },
-  "Libero": null
-};
-const KM_MAX = 1250;
-const DURATE = [6, 12, 18, 24, 36, 48, 60];
-const FERMI = {
-  "Best 30gg": 30,
-  "Base 45gg": 45,
-  "Worst 60gg": 60
-};
-
-/* quanti contratti da D mesi entrano in S, e quanti mesi si vendono davvero */
-function riempi(S, D, fermoGg) {
-  const F = fermoGg / 30;
-  const npi = Math.floor((S + F) / (D + F));
-  const r = S - npi * (D + F);
-  const n = r >= 0.5 ? npi + 1 : npi;
-  const A = r >= 0.5 ? npi * D + r : npi * D;
-  return {
-    n,
-    A,
-    sa: S / A,
-    persi: S - A
-  };
-}
-/* svalutazione sul prezzo ottenibile: nulla fino a offerte di 12 mesi, poi cresce.
-   Non si applica al primo contratto, che alloca un veicolo nuovo. */
-const svalut = (D, primo, max) => primo || D <= 12 ? 0 : max / 100 * ((D - 12) / 48);
-function SimulatoreFlee() {
-  const [tab, setTab] = useState("ordini");
-  const [cts, setCts] = useState(35);
+const SEGMENTI = ["City car", "Compatte e crossover", "SUV medi", "Premium", "n.d."];
+const FORNITORI = ["Kinto", "Leasys", "Mobilize", "Athlon"];
+function CatalogoFlee() {
   const [km, setKm] = useState(400);
-  const [durMode, setDurMode] = useState("best");
-  const [selD, setSelD] = useState("Toyota C-HR");
-  const [supD, setSupD] = useState(48);
-  const [fermoN, setFermoN] = useState("Base 45gg");
   const [mkPct, setMkPct] = useState(10);
-  const [svalMax, setSvalMax] = useState(10);
-  const [sel, setSel] = useState("Aygo X");
-  const [kmP, setKmP] = useState(332);
-  const [scen, setScen] = useState("C · tutto sul km");
-  const [margPct, setMargPct] = useState(10);
-  const [quota, setQuota] = useState(100);
-  const [kmIncl, setKmIncl] = useState(0);
-  const [vista, setVista] = useState("canone");
-
-  /* ---------- ORDINI ---------- */
-  const ord = useMemo(() => ORDINI.map(v => {
-    const durate = Object.keys(v.r).map(Number);
-    const opz = durate.map(d => {
-      const forn = v.r[d],
-        ass = km * v.ir,
-        ay = v.a[d];
-      const marg = ay - forn - cts - ass;
+  const [cts, setCts] = useState(35);
+  const [dur, setDur] = useState("best");
+  const [forn, setForn] = useState([...FORNITORI]);
+  const [segs, setSegs] = useState([...SEGMENTI]);
+  const [prezzi, setPrezzi] = useState({});
+  const toggle = (arr, set, v) => set(arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v]);
+  const calc = useMemo(() => {
+    return CATALOGO.map(v => {
+      const ov = prezzi[v.m];
+      const a36 = ov !== undefined && ov !== "" ? parseFloat(ov) || 0 : v.a36;
+      const a48 = ov !== undefined && ov !== "" ? Math.round((parseFloat(ov) || 0) * 0.926) : v.a48;
+      const opz = [{
+        d: 36,
+        r: v.r36,
+        a: a36
+      }, {
+        d: 48,
+        r: v.r48,
+        a: a48
+      }].filter(o => o.r > 0 && o.a > 0).map(o => ({
+        ...o,
+        ass: km * v.ir,
+        marg: o.a - o.r - cts - km * v.ir
+      }));
+      const s = opz.length ? dur === "best" ? opz.reduce((x, y) => y.marg > x.marg ? y : x) : opz.find(o => o.d === Number(dur)) || opz[0] : null;
+      const fornMax = s ? s.a * (1 - mkPct / 100) - cts - km * v.ir : 0;
       return {
-        d,
-        forn,
-        ass,
-        ay,
-        marg,
-        pct: marg / ay,
-        markupKm: marg / km
+        ...v,
+        a36,
+        a48,
+        opz,
+        s,
+        fornMax,
+        manuale: ov !== undefined && ov !== ""
       };
     });
-    const scelta = durMode === "best" ? opz.reduce((a, b) => b.marg > a.marg ? b : a) : opz.find(o => o.d === Number(durMode)) || opz.reduce((a, b) => b.marg > a.marg ? b : a);
-    return {
-      ...v,
-      opz,
-      s: scelta
-    };
-  }).sort((a, b) => b.s.marg - a.s.marg), [km, cts, durMode]);
-  const scalaMax = Math.max(...ord.map(v => Math.max(v.s.ay, v.s.forn + cts + v.s.ass)));
-  const verdetto = p => p >= 0.12 ? ["ORDINA", C.ok] : p >= 0.05 ? ["VALUTA", C.ayv] : ["NON ORDINARE", C.att];
-
-  /* ---------- GRIGLIA DURATE 6-60 ---------- */
-  const vD = ORDINI.find(x => x.m === selD);
-  const supOk = Object.keys(vD.r).map(Number);
-  const supUse = vD.r[supD] ? supD : supOk[supOk.length - 1];
-  const griglia = useMemo(() => {
-    const CF = vD.r[supUse] + cts;
-    const m = mkPct / 100;
-    return DURATE.filter(D => D <= supUse).map(D => {
-      const {
-        n,
-        A,
-        sa,
-        persi
-      } = riempi(supUse, D, FERMI[fermoN]);
-      const fissa = CF * sa;
-      /* markup/km che realizza m% del canone: km·mk = m·(fissa + km·ir + km·mk) */
-      const mkKm = m * (fissa + km * vD.ir) / (km * (1 - m));
-      const varRata = km * (vD.ir + mkKm);
-      const canone = fissa + varRata;
-      const sc = svalut(D, false, svalMax);
-      return {
-        D,
-        n,
-        A,
-        sa,
-        persi,
-        fissa,
-        varRata,
-        canone,
-        mkKm,
-        margine: km * mkKm,
-        canoneUsato: canone * (1 - sc),
-        sconto: sc,
-        margineUsato: km * mkKm - canone * sc,
-        ay: vD.a[D] || null
-      };
-    }).reverse();
-  }, [vD, supUse, cts, km, fermoN, mkPct, svalMax]);
-  const rif = griglia.find(g => g.D === supUse) || griglia[0];
-
-  /* ---------- PORTAFOGLIO ---------- */
-  const v = PTF.find(x => x.m === sel);
-  const applica = nome => {
-    setScen(nome);
-    const s = SCENARI[nome];
-    if (s) {
-      setQuota(s.quota);
-      setKmIncl(s.kmIncl);
-    }
-  };
-  const lib = setter => x => {
-    setter(x);
-    setScen("Libero");
-  };
-
-  /* margine totale al km di riferimento: M = m(costo + km·ir)/(1-m), indipendente dalla ripartizione */
-  const motore = (mod, kmRif) => {
-    const cnk = mod.fo + cts,
-      m = margPct / 100,
-      s = quota / 100;
-    const M = m < 1 ? m * (cnk + kmRif * mod.ir) / (1 - m) : 0;
-    const u = Math.max(0, kmRif - kmIncl);
-    const margFisso = u > 0 ? (1 - s) * M : M;
-    const mkKm = u > 0 ? s * M / u : 0;
-    const fissaNew = cnk + margFisso + kmIncl * mod.ir;
-    return {
-      cnk,
-      M,
-      margFisso,
-      mkKm,
-      fissaNew,
-      canoneNew: q => fissaNew + Math.max(0, q - kmIncl) * (mod.ir + mkKm),
-      margNew: q => margFisso + Math.max(0, q - kmIncl) * mkKm
-    };
-  };
-  const calc = useMemo(() => {
-    const e = motore(v, v.km);
-    return {
-      ...e,
-      canoneAtt: q => v.fissa + q * (v.vp + v.ir),
-      margAtt: q => v.fissa + q * v.vp - e.cnk,
-      sogliaNew: v.ay ? kmIncl + (v.ay - e.fissaNew) / (v.ir + e.mkKm) : null
-    };
-  }, [v, margPct, quota, kmIncl, cts]);
-  const W = 760,
-    H = 300,
-    PL = 54,
-    PR = 14,
-    PT = 14,
-    PB = 36;
-  const serie = vista === "canone" ? [{
-    k: "a",
-    f: calc.canoneAtt,
-    col: C.att,
-    lab: "Pricing attuale"
-  }, {
-    k: "n",
-    f: calc.canoneNew,
-    col: C.nuovo,
-    lab: "Pricing nuovo"
-  }] : [{
-    k: "a",
-    f: calc.margAtt,
-    col: C.att,
-    lab: "Margine attuale"
-  }, {
-    k: "n",
-    f: calc.margNew,
-    col: C.nuovo,
-    lab: "Margine nuovo"
-  }];
-  const vals = [];
-  for (let q = 0; q <= KM_MAX; q += 50) serie.forEach(s => vals.push(s.f(q)));
-  if (vista === "canone" && v.ay) vals.push(v.ay);
-  const yMax = Math.max(...vals) * 1.08,
-    yMin = Math.min(0, Math.min(...vals) * 1.15);
-  const X = q => PL + q / KM_MAX * (W - PL - PR);
-  const Y = e => H - PB - (e - yMin) / (yMax - yMin) * (H - PT - PB);
-  const path = f => {
-    let d = "";
-    for (let q = 0; q <= KM_MAX; q += 25) d += (q ? "L" : "M") + X(q).toFixed(1) + " " + Y(f(q)).toFixed(1) + " ";
-    return d;
-  };
-  const Tab = ({
-    id,
+  }, [km, cts, dur, mkPct, prezzi]);
+  const visibili = calc.filter(v => forn.includes(v.f) && segs.includes(v.seg));
+  const conPrezzo = visibili.filter(v => v.s).sort((a, b) => b.s.marg / b.s.a - a.s.marg / a.s.a);
+  const senzaPrezzo = visibili.filter(v => !v.s);
+  const scala = Math.max(...conPrezzo.map(v => Math.max(v.s.a, v.s.r + cts + v.s.ass)), 1);
+  const verdetto = p => p >= 0.12 ? ["ORDINA", C.ok] : p >= 0.05 ? ["VALUTA", C.ayv] : ["NO", C.att];
+  const nOrd = conPrezzo.filter(v => v.s.marg / v.s.a >= 0.12).length;
+  const Chip = ({
+    on,
+    onClick,
     children
   }) => /*#__PURE__*/React.createElement("button", {
-    onClick: () => setTab(id),
+    onClick: onClick,
     style: {
-      padding: "7px 16px",
-      borderRadius: 5,
+      padding: "4px 9px",
+      borderRadius: 4,
       cursor: "pointer",
-      fontSize: 13,
+      fontSize: 11.5,
       fontFamily: FONT,
-      border: `1px solid ${tab === id ? C.ink : C.line}`,
-      background: tab === id ? C.ink : "#fff",
-      color: tab === id ? "#fff" : C.ink2,
-      fontWeight: tab === id ? 600 : 400
+      border: `1px solid ${on ? C.nuovo : C.line}`,
+      background: on ? C.nuovo : "#fff",
+      color: on ? "#fff" : C.mute
     }
   }, children);
-  const Slider = ({
-    lab,
-    val,
-    set,
-    mn,
-    mx,
-    st,
-    u,
-    fmt
-  }) => /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between",
-    style: {
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11.5,
-      color: C.ink2
-    }
-  }, lab), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 12
-    }
-  }, fmt ? fmt(val) : val, " ", u)), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: mn,
-    max: mx,
-    step: st,
-    value: val,
-    onChange: e => set(parseFloat(e.target.value))
-  }));
   return /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: FONT,
@@ -614,27 +481,15 @@ function SimulatoreFlee() {
       letterSpacing: "-.02em",
       margin: 0
     }
-  }, "Cosa ordinare, e cosa fare di quello che abbiamo"), /*#__PURE__*/React.createElement("div", {
-    className: "flex",
-    style: {
-      gap: 7,
-      margin: "14px 0"
-    }
-  }, /*#__PURE__*/React.createElement(Tab, {
-    id: "ordini"
-  }, "Vetture da ordinare"), /*#__PURE__*/React.createElement(Tab, {
-    id: "ptf"
-  }, "Portafoglio · 313 contratti"), /*#__PURE__*/React.createElement(Tab, {
-    id: "durate"
-  }, "Durate flessibili 6–60 mesi")), tab === "ordini" ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+  }, "Catalogo luglio-agosto 2026 \\u00b7 cosa ordinare"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: C.ink2,
-      margin: "0 0 14px",
-      maxWidth: 730,
+      margin: "5px 0 14px",
+      maxWidth: 760,
       lineHeight: 1.5
     }
-  }, "Ogni barra è il prezzo Ayvens per quella vettura. Dentro, dove finisce: quanto al fornitore, quanto alla gestione, quanto all'assicurazione. Quello che avanza è il vostro margine."), /*#__PURE__*/React.createElement("div", {
+  }, "Ogni barra \\u00e8 il prezzo di mercato della vettura. Dentro, dove finisce: quanto al fornitore, quanto alla gestione, quanto all\\u2019assicurazione. Quello che avanza \\u00e8 il margine."), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.card,
       border: `1px solid ${C.line}`,
@@ -645,11 +500,12 @@ function SimulatoreFlee() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap items-end",
     style: {
-      gap: 26
+      gap: 22,
+      marginBottom: 12
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      flex: "1 1 260px"
+      flex: "1 1 220px"
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between",
@@ -673,31 +529,49 @@ function SimulatoreFlee() {
     max: 1000,
     step: 25,
     value: km,
-    onChange: e => setKm(parseInt(e.target.value))
+    onChange: e => setKm(+e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: "1 1 200px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between",
+    style: {
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11.5,
+      color: C.ink2
+    }
+  }, "Mark-up target"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 12.5,
+      fontWeight: 600
+    }
+  }, mkPct, "%")), /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: 0,
+    max: 25,
+    step: 1,
+    value: mkPct,
+    onChange: e => setMkPct(+e.target.value)
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: C.mute,
       marginBottom: 5
     }
-  }, "Durata fornitura"), /*#__PURE__*/React.createElement("div", {
+  }, "Durata"), /*#__PURE__*/React.createElement("div", {
     className: "flex",
     style: {
       gap: 5
     }
-  }, ["best", "36", "48", "60"].map(d => /*#__PURE__*/React.createElement("button", {
+  }, ["best", "36", "48"].map(d => /*#__PURE__*/React.createElement(Chip, {
     key: d,
-    onClick: () => setDurMode(d),
-    style: {
-      padding: "5px 10px",
-      borderRadius: 4,
-      cursor: "pointer",
-      fontSize: 11.5,
-      fontFamily: FONT,
-      border: `1px solid ${durMode === d ? C.nuovo : C.line}`,
-      background: durMode === d ? C.nuovo : "#fff",
-      color: durMode === d ? "#fff" : C.ink2
-    }
+    on: dur === d,
+    onClick: () => setDur(d)
   }, d === "best" ? "la migliore" : d + "m")))), /*#__PURE__*/React.createElement("label", {
     className: "flex items-center",
     style: {
@@ -714,7 +588,7 @@ function SimulatoreFlee() {
     step: 5,
     onChange: e => setCts(parseFloat(e.target.value) || 0),
     style: {
-      width: 64,
+      width: 62,
       padding: "3px 6px",
       border: `1px solid ${C.line}`,
       borderRadius: 3,
@@ -722,22 +596,117 @@ function SimulatoreFlee() {
       fontSize: 12,
       textAlign: "right"
     }
-  })))), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap",
     style: {
-      background: C.card,
-      border: `1px solid ${C.line}`,
+      gap: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center",
+    style: {
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: C.mute,
+      marginRight: 3
+    }
+  }, "Fornitore"), FORNITORI.map(f => /*#__PURE__*/React.createElement(Chip, {
+    key: f,
+    on: forn.includes(f),
+    onClick: () => toggle(forn, setForn, f)
+  }, f))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center",
+    style: {
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: C.mute,
+      marginRight: 3
+    }
+  }, "Segmento"), SEGMENTI.map(sg => /*#__PURE__*/React.createElement(Chip, {
+    key: sg,
+    on: segs.includes(sg),
+    onClick: () => toggle(segs, setSegs, sg)
+  }, sg))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.ink,
+      color: "#fff",
       borderRadius: 6,
-      padding: "18px 16px"
+      padding: "14px 20px",
+      marginBottom: 12
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap",
     style: {
-      gap: 16,
+      gap: 30
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      opacity: 0.6
+    }
+  }, "Modelli visibili"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 24
+    }
+  }, conPrezzo.length, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      opacity: 0.55
+    }
+  }, " / ", CATALOGO.length))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      opacity: 0.6
+    }
+  }, "Sopra il ", mkPct, "%"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 24,
+      color: "#7FE3B8"
+    }
+  }, nOrd)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      opacity: 0.6
+    }
+  }, "Senza prezzo di mercato"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 24,
+      color: senzaPrezzo.length ? "#F0B860" : "#fff"
+    }
+  }, senzaPrezzo.length)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      opacity: 0.6
+    }
+  }, "Prezzo stimato dal listino"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 24
+    }
+  }, conPrezzo.filter(v => v.src === "stimato" && !v.manuale).length)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.card,
+      border: `1px solid ${C.line}`,
+      borderRadius: 6,
+      padding: "16px 16px 10px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap",
+    style: {
+      gap: 15,
       marginBottom: 14,
       fontSize: 11,
       color: C.ink2
     }
-  }, [["Costo fornitura", C.forn], ["Cost-to-serve", C.cts], ["Assicurazione", C.ass], ["Margine Flee", C.marg], ["Sopra il prezzo di mercato", C.over]].map(([l, col]) => /*#__PURE__*/React.createElement("span", {
+  }, [["Costo fornitura", C.forn], ["Cost-to-serve", C.cts], ["Assicurazione", C.ass], ["Margine", C.marg], ["Sopra il mercato", C.over]].map(([l, col]) => /*#__PURE__*/React.createElement("span", {
     key: l,
     className: "flex items-center",
     style: {
@@ -751,64 +720,71 @@ function SimulatoreFlee() {
       borderRadius: 2,
       display: "inline-block"
     }
-  }), l))), ord.map(v => {
+  }), l))), conPrezzo.map(v => {
     const s = v.s,
-      [vd, vc] = verdetto(s.pct);
-    const pc = x => `${x / scalaMax * 100}%`;
-    const neg = s.marg < 0;
+      pct = s.marg / s.a,
+      [vd, vc] = verdetto(pct),
+      neg = s.marg < 0;
+    const w = x => `${x / scala * 100}%`;
     return /*#__PURE__*/React.createElement("div", {
       key: v.m,
       style: {
-        marginBottom: 15
+        marginBottom: 13
       }
     }, /*#__PURE__*/React.createElement("div", {
       className: "flex items-baseline justify-between",
       style: {
-        marginBottom: 4
+        marginBottom: 3
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 12.5,
+        fontSize: 12,
         fontWeight: 500
       }
     }, v.m, /*#__PURE__*/React.createElement("span", {
       style: {
         color: C.mute,
         fontWeight: 400,
-        fontSize: 11
+        fontSize: 10.5
       }
-    }, " ", "· ", v.f, " · ", s.d, " mesi", v.n > 0 ? ` · ${v.n} in ptf` : " · mai ordinata", v.stim && /*#__PURE__*/React.createElement("span", {
+    }, " \u00b7 ", v.f, " \u00b7 ", s.d, " mesi", v.seg !== "n.d." ? " \u00b7 " + v.seg : "", v.manuale ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C.nuovo
+      }
+    }, " \u00b7 prezzo inserito") : v.src === "stimato" ? /*#__PURE__*/React.createElement("span", {
       style: {
         color: C.ayv
       }
-    }, " · dati stimati"))), /*#__PURE__*/React.createElement("span", {
+    }, " \u00b7 prezzo stimato") : null)), /*#__PURE__*/React.createElement("span", {
       className: "flex items-baseline",
       style: {
-        gap: 10
+        gap: 9
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontFamily: MONO,
-        fontSize: 13,
+        fontSize: 12.5,
         fontWeight: 600,
         color: neg ? C.att : C.ok
       }
     }, eur(s.marg), " ", /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 10.5,
+        fontSize: 10,
         opacity: 0.7
       }
-    }, "(", (s.pct * 100).toFixed(1), "%)")), /*#__PURE__*/React.createElement("span", {
+    }, "(", (pct * 100).toFixed(1), "%)")), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 10,
+        fontSize: 9.5,
         fontWeight: 600,
         color: vc,
-        letterSpacing: ".04em"
+        letterSpacing: ".04em",
+        width: 52,
+        textAlign: "right"
       }
     }, vd))), /*#__PURE__*/React.createElement("div", {
       style: {
         position: "relative",
-        height: 26,
+        height: 22,
         background: C.paper,
         borderRadius: 3
       }
@@ -821,56 +797,44 @@ function SimulatoreFlee() {
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        width: pc(s.forn),
+        width: w(s.r),
         background: C.forn
       },
-      title: `Fornitura ${eur(s.forn)}`
+      title: `Fornitura ${eur(s.r)}`
     }), /*#__PURE__*/React.createElement("div", {
       style: {
-        width: pc(cts),
+        width: w(cts),
         background: C.cts
       },
       title: `Cost-to-serve ${eur(cts)}`
     }), /*#__PURE__*/React.createElement("div", {
       style: {
-        width: pc(s.ass),
+        width: w(s.ass),
         background: C.ass
       },
       title: `Assicurazione ${eur(s.ass)}`
     }), /*#__PURE__*/React.createElement("div", {
       style: {
-        width: pc(Math.abs(s.marg)),
+        width: w(Math.abs(s.marg)),
         background: neg ? C.over : C.marg
-      },
-      title: `${neg ? "Sopra mercato" : "Margine"} ${eur(s.marg)}`
+      }
     })), /*#__PURE__*/React.createElement("div", {
       style: {
         position: "absolute",
-        left: pc(s.ay),
+        left: w(s.a),
         top: -3,
         bottom: -3,
         width: 2,
         background: C.ayv
       }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: "absolute",
-        left: pc(s.ay),
-        top: -16,
-        fontSize: 9.5,
-        fontFamily: MONO,
-        color: C.ayv,
-        transform: "translateX(-50%)"
-      }
-    }, eur(s.ay))));
-  }), /*#__PURE__*/React.createElement("div", {
+    })));
+  }), !conPrezzo.length && /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 11,
+      fontSize: 12,
       color: C.mute,
-      marginTop: 10,
-      lineHeight: 1.5
+      padding: "10px 0"
     }
-  }, "La linea arancione è il prezzo Ayvens. Se la barra la supera, a quel chilometraggio siete fuori mercato anche regalando il servizio.")), /*#__PURE__*/React.createElement("div", {
+  }, "Nessun modello con i filtri selezionati.")), senzaPrezzo.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.card,
       border: `1px solid ${C.line}`,
@@ -882,977 +846,63 @@ function SimulatoreFlee() {
     style: {
       fontSize: 14,
       fontWeight: 600,
-      margin: "0 0 10px"
-    }
-  }, "La scelta della durata, vettura per vettura"), /*#__PURE__*/React.createElement("table", {
-    style: {
-      width: "100%",
-      borderCollapse: "collapse",
-      fontSize: 11.5
-    }
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
-    style: {
-      color: C.mute,
-      fontSize: 10
-    }
-  }, /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "left",
-      padding: "3px 0"
-    }
-  }, "Vettura"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "36 mesi"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "48 mesi"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "60 mesi"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "migliore"))), /*#__PURE__*/React.createElement("tbody", {
-    style: {
-      fontFamily: MONO
-    }
-  }, ord.map(v => {
-    const best = v.opz.reduce((a, b) => b.marg > a.marg ? b : a);
-    return /*#__PURE__*/React.createElement("tr", {
-      key: v.m,
-      style: {
-        borderTop: `1px solid ${C.line}`
-      }
-    }, /*#__PURE__*/React.createElement("td", {
-      style: {
-        padding: "5px 0",
-        fontFamily: FONT
-      }
-    }, v.m), [36, 48, 60].map(d => {
-      const o = v.opz.find(x => x.d === d);
-      return /*#__PURE__*/React.createElement("td", {
-        key: d,
-        style: {
-          textAlign: "right",
-          color: !o ? C.mute : o.marg < 0 ? C.att : C.ok,
-          fontWeight: o && o.d === best.d ? 600 : 400
-        }
-      }, o ? eur(o.marg) : "non offerta");
-    }), /*#__PURE__*/React.createElement("td", {
-      style: {
-        textAlign: "right",
-        fontFamily: FONT,
-        fontWeight: 600
-      }
-    }, best.d, " mesi"));
-  }))))) : tab === "durate" ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 13,
-      color: C.ink2,
-      margin: "0 0 14px",
-      maxWidth: 760,
-      lineHeight: 1.5
-    }
-  }, "L'impegno col fornitore dura ", supUse, " mesi e va pagato tutto. Un contratto corto significa più cambi cliente, quindi più mesi di piazzale: quei mesi li devono pagare i mesi venduti. È da lì, e non dalla flessibilità, che nasce il sovrapprezzo sulle durate brevi."), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.card,
-      border: `1px solid ${C.line}`,
-      borderRadius: 6,
-      padding: 14,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap",
-    style: {
-      gap: 5,
-      marginBottom: 12
-    }
-  }, ORDINI.map(x => /*#__PURE__*/React.createElement("button", {
-    key: x.m,
-    onClick: () => setSelD(x.m),
-    style: {
-      padding: "5px 9px",
-      borderRadius: 4,
-      cursor: "pointer",
-      fontSize: 11.5,
-      fontFamily: FONT,
-      border: `1px solid ${x.m === selD ? C.nuovo : C.line}`,
-      background: x.m === selD ? C.nuovo : "#fff",
-      color: x.m === selD ? "#fff" : C.ink2
-    }
-  }, x.m))), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap items-end",
-    style: {
-      gap: 22
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: C.mute,
-      marginBottom: 5
-    }
-  }, "Impegno col fornitore"), /*#__PURE__*/React.createElement("div", {
-    className: "flex",
-    style: {
-      gap: 5
-    }
-  }, [36, 48, 60].map(d => {
-    const ok = !!vD.r[d];
-    return /*#__PURE__*/React.createElement("button", {
-      key: d,
-      disabled: !ok,
-      onClick: () => setSupD(d),
-      style: {
-        padding: "5px 10px",
-        borderRadius: 4,
-        cursor: ok ? "pointer" : "not-allowed",
-        fontSize: 11.5,
-        fontFamily: FONT,
-        border: `1px solid ${d === supUse ? C.nuovo : C.line}`,
-        background: d === supUse ? C.nuovo : "#fff",
-        color: !ok ? C.mute : d === supUse ? "#fff" : C.ink2,
-        opacity: ok ? 1 : 0.45
-      }
-    }, d, "m", /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 9.5,
-        fontFamily: MONO,
-        opacity: 0.75
-      }
-    }, ok ? eur(vD.r[d]) : "n.d."));
-  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: C.mute,
-      marginBottom: 5
-    }
-  }, "Fermo tra clienti"), /*#__PURE__*/React.createElement("div", {
-    className: "flex",
-    style: {
-      gap: 5
-    }
-  }, Object.keys(FERMI).map(f => /*#__PURE__*/React.createElement("button", {
-    key: f,
-    onClick: () => setFermoN(f),
-    style: {
-      padding: "5px 10px",
-      borderRadius: 4,
-      cursor: "pointer",
-      fontSize: 11.5,
-      fontFamily: FONT,
-      border: `1px solid ${f === fermoN ? C.nuovo : C.line}`,
-      background: f === fermoN ? C.nuovo : "#fff",
-      color: f === fermoN ? "#fff" : C.ink2
-    }
-  }, f)))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: "1 1 180px"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between",
-    style: {
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11.5,
-      color: C.ink2
-    }
-  }, "Mark-up sul canone"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 12
-    }
-  }, mkPct, "%")), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: 0,
-    max: 25,
-    step: 1,
-    value: mkPct,
-    onChange: e => setMkPct(parseInt(e.target.value))
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: "1 1 180px"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between",
-    style: {
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11.5,
-      color: C.ink2
-    }
-  }, "Svalutazione max a 60m"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 12
-    }
-  }, svalMax, "%")), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: 0,
-    max: 30,
-    step: 1,
-    value: svalMax,
-    onChange: e => setSvalMax(parseInt(e.target.value))
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.card,
-      border: `1px solid ${C.line}`,
-      borderRadius: 6,
-      padding: 16,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      fontSize: 14,
-      fontWeight: 600,
       margin: "0 0 4px"
     }
-  }, "Il listino per durata"), /*#__PURE__*/React.createElement("p", {
+  }, "Manca il prezzo di mercato"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 11.5,
       color: C.mute,
       margin: "0 0 10px"
     }
-  }, "A ", km, " km/mese. Il prezzo usato vale dal secondo noleggio in poi: il primo contratto alloca un veicolo nuovo e non subisce svalutazione."), /*#__PURE__*/React.createElement("table", {
+  }, "Modelli senza quotazione Ayvens e senza listino da cui stimarla. Inserisci il prezzo a 36 mesi e rientrano nel confronto."), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap",
     style: {
-      width: "100%",
-      borderCollapse: "collapse",
-      fontSize: 11.5
+      gap: 8
     }
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+  }, senzaPrezzo.map(v => /*#__PURE__*/React.createElement("label", {
+    key: v.m,
+    className: "flex items-center justify-between",
     style: {
-      color: C.mute,
-      fontSize: 10
-    }
-  }, /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "left",
-      padding: "3px 0"
-    }
-  }, "Durata"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "Contratti"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "Mesi venduti"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "Persi"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "S/A"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "Rata fissa"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "Rata var."), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "CANONE"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "vs ", supUse, "m"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "su usato"), /*#__PURE__*/React.createElement("th", {
-    style: {
-      textAlign: "right"
-    }
-  }, "Ayvens"))), /*#__PURE__*/React.createElement("tbody", {
-    style: {
-      fontFamily: MONO
-    }
-  }, griglia.map(g => /*#__PURE__*/React.createElement("tr", {
-    key: g.D,
-    style: {
-      borderTop: `1px solid ${C.line}`,
-      background: g.D === supUse ? "#EEF3FB" : "transparent"
-    }
-  }, /*#__PURE__*/React.createElement("td", {
-    style: {
-      padding: "5px 0",
-      fontFamily: FONT,
-      fontWeight: g.D === supUse ? 600 : 400
-    }
-  }, g.D, " mesi"), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: C.mute
-    }
-  }, g.n), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: C.mute
-    }
-  }, g.A.toFixed(1)), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: g.persi > 4 ? C.ayv : C.mute
-    }
-  }, g.persi.toFixed(1)), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: C.mute
-    }
-  }, g.sa.toFixed(4)), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right"
-    }
-  }, eur(g.fissa, 2)), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: C.mute
-    }
-  }, eur(g.varRata, 2)), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      fontWeight: 600
-    }
-  }, eur(g.canone, 2)), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: g.canone > rif.canone ? C.att : C.ok
-    }
-  }, g.canone >= rif.canone ? "+" : "", ((g.canone / rif.canone - 1) * 100).toFixed(1), "%"), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: C.mute
-    }
-  }, g.sconto > 0 ? eur(g.canoneUsato, 2) : "="), /*#__PURE__*/React.createElement("td", {
-    style: {
-      textAlign: "right",
-      color: !g.ay ? C.mute : g.canone <= g.ay ? C.ok : C.att
-    }
-  }, g.ay ? eur(g.ay) : "no NLT"))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 12,
-      padding: "10px 12px",
+      gap: 8,
+      width: 310,
+      padding: "6px 10px",
       background: C.paper,
-      borderLeft: `3px solid ${C.ayv}`,
-      fontSize: 11.5,
-      lineHeight: 1.55,
-      color: C.ink2
-    }
-  }, "Sotto i 36 mesi non esiste un benchmark NLT: leasing e broker quel prodotto non lo vendono. I competitor reali sono gli abbonamenti auto — Bipi, Sixt+, Drivalia CarCloud, Carify — e i loro prezzi non li abbiamo. Il sovrapprezzo che vedi sulle durate brevi copre il costo dei mesi persi, non è un prezzo di mercato.")), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap",
-    style: {
-      gap: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: "1 1 340px",
-      background: C.card,
-      border: `1px solid ${C.line}`,
-      borderRadius: 6,
-      padding: 16
-    }
-  }, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      fontSize: 14,
-      fontWeight: 600,
-      margin: "0 0 10px"
-    }
-  }, "Da dove viene il sovrapprezzo"), griglia.map(g => {
-    const maxC = Math.max(...griglia.map(x => x.canone));
-    const base = rif.fissa,
-      extra = g.fissa - base;
-    return /*#__PURE__*/React.createElement("div", {
-      key: g.D,
-      style: {
-        marginBottom: 9
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex justify-between",
-      style: {
-        fontSize: 11,
-        marginBottom: 2
-      }
-    }, /*#__PURE__*/React.createElement("span", null, g.D, " mesi"), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontFamily: MONO,
-        color: C.mute
-      }
-    }, extra > 0.01 ? `+${eur(extra, 2)} per ${g.persi.toFixed(1)} mesi persi` : "nessun mese perso")), /*#__PURE__*/React.createElement("div", {
-      className: "flex",
-      style: {
-        height: 16,
-        background: C.paper,
-        borderRadius: 2,
-        overflow: "hidden"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: `${base / maxC * 100}%`,
-        background: C.forn
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: `${extra / maxC * 100}%`,
-        background: C.ayv
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: `${g.varRata / maxC * 100}%`,
-        background: C.ass
-      }
-    })));
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap",
-    style: {
-      gap: 14,
-      marginTop: 10,
-      fontSize: 10.5,
-      color: C.ink2
-    }
-  }, [["Costo del veicolo", C.forn], ["Mesi di piazzale", C.ayv], ["Quota al km", C.ass]].map(([l, col]) => /*#__PURE__*/React.createElement("span", {
-    key: l,
-    className: "flex items-center",
-    style: {
-      gap: 5
+      borderRadius: 4,
+      border: `1px solid ${C.line}`
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      width: 10,
-      height: 10,
-      background: col,
-      borderRadius: 2,
-      display: "inline-block"
-    }
-  }), l)))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: "1 1 320px",
-      background: C.card,
-      border: `1px solid ${C.line}`,
-      borderRadius: 6,
-      padding: 16
-    }
-  }, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      fontSize: 14,
-      fontWeight: 600,
-      margin: "0 0 10px"
-    }
-  }, "Cosa cambia col fermo"), /*#__PURE__*/React.createElement("table", {
-    style: {
-      width: "100%",
-      borderCollapse: "collapse",
       fontSize: 11.5
     }
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+  }, v.m, /*#__PURE__*/React.createElement("span", {
     style: {
       color: C.mute,
       fontSize: 10
     }
-  }, /*#__PURE__*/React.createElement("th", {
+  }, " \u00b7 ", v.f, " \u00b7 ", eur(v.r36))), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    placeholder: "\\u20ac/mese",
+    value: prezzi[v.m] ?? "",
+    onChange: e => setPrezzi({
+      ...prezzi,
+      [v.m]: e.target.value
+    }),
     style: {
-      textAlign: "left",
-      padding: "3px 0"
-    }
-  }, "Durata"), Object.entries(FERMI).map(([n, g]) => /*#__PURE__*/React.createElement("th", {
-    key: n,
-    style: {
+      width: 72,
+      padding: "3px 6px",
+      border: `1px solid ${C.line}`,
+      borderRadius: 3,
+      fontFamily: MONO,
+      fontSize: 12,
       textAlign: "right"
     }
-  }, g, " gg")))), /*#__PURE__*/React.createElement("tbody", {
-    style: {
-      fontFamily: MONO
-    }
-  }, DURATE.filter(D => D <= supUse).reverse().map(D => /*#__PURE__*/React.createElement("tr", {
-    key: D,
-    style: {
-      borderTop: `1px solid ${C.line}`
-    }
-  }, /*#__PURE__*/React.createElement("td", {
-    style: {
-      padding: "5px 0",
-      fontFamily: FONT
-    }
-  }, D, " mesi"), Object.values(FERMI).map(gg => {
-    const f = (vD.r[supUse] + cts) * riempi(supUse, D, gg).sa;
-    return /*#__PURE__*/React.createElement("td", {
-      key: gg,
-      style: {
-        textAlign: "right"
-      }
-    }, eur(f, 2));
   }))))), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginTop: 10,
-      fontSize: 11,
-      color: C.mute,
-      lineHeight: 1.5
-    }
-  }, "Sulle durate lunghe il fermo non conta: il veicolo non torna mai in piazzale. Sulle brevi decide tutto, ed è una questione operativa prima che di pricing.")))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 13,
-      color: C.ink2,
-      margin: "0 0 14px",
-      maxWidth: 730,
-      lineHeight: 1.5
-    }
-  }, "Rata fissa attuale comprensiva dell'anticipo spalmato. Costo = fornitura + cost-to-serve; l'assicurazione è girata a costo e non produce margine."), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.card,
-      border: `1px solid ${C.line}`,
-      borderRadius: 6,
-      padding: 14,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: C.mute,
-      marginBottom: 7
-    }
-  }, "Modello"), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap",
-    style: {
-      gap: 5
-    }
-  }, PTF.map(x => /*#__PURE__*/React.createElement("button", {
-    key: x.m,
-    onClick: () => {
-      setSel(x.m);
-      setKmP(x.km);
-    },
-    style: {
-      padding: "5px 9px",
-      borderRadius: 4,
-      cursor: "pointer",
-      fontSize: 11.5,
-      fontFamily: FONT,
-      border: `1px solid ${x.m === sel ? C.nuovo : C.line}`,
-      background: x.m === sel ? C.nuovo : "#fff",
-      color: x.m === sel ? "#fff" : C.ink2
-    }
-  }, x.m, " ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      opacity: 0.6,
-      fontFamily: MONO,
-      fontSize: 10
-    }
-  }, x.n))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: C.ink,
-      color: "#fff",
-      borderRadius: 6,
-      padding: "16px 22px",
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap",
-    style: {
-      gap: 28
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      opacity: 0.6
-    }
-  }, "Canone attuale a ", kmP, " km"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 26,
-      color: "#FF8C7A"
-    }
-  }, eur(calc.canoneAtt(kmP), 2)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      opacity: 0.55,
-      fontFamily: MONO
-    }
-  }, "margine ", eur(calc.margAtt(kmP), 2))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      opacity: 0.6
-    }
-  }, "Canone nuovo a ", kmP, " km"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 26,
-      color: "#7FE3B8"
-    }
-  }, eur(calc.canoneNew(kmP), 2)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      opacity: 0.55,
-      fontFamily: MONO
-    }
-  }, "margine ", eur(calc.margNew(kmP), 2))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      opacity: 0.6
-    }
-  }, "Variazione di prezzo"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 26
-    }
-  }, calc.canoneNew(kmP) >= calc.canoneAtt(kmP) ? "+" : "", ((calc.canoneNew(kmP) / calc.canoneAtt(kmP) - 1) * 100).toFixed(0), "%"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      opacity: 0.55,
-      fontFamily: MONO
-    }
-  }, eur(calc.canoneNew(kmP) - calc.canoneAtt(kmP), 2))), v.ay > 0 && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      opacity: 0.6
-    }
-  }, "Ayvens ", eur(v.ay)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 26,
-      color: calc.canoneNew(kmP) <= v.ay ? "#7FE3B8" : "#FF8C7A"
-    }
-  }, calc.canoneNew(kmP) > v.ay ? "+" : "", ((calc.canoneNew(kmP) / v.ay - 1) * 100).toFixed(0), "%"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      opacity: 0.55,
-      fontFamily: MONO
-    }
-  }, "competitivi fino a ", calc.sogliaNew > 0 ? Math.round(calc.sogliaNew) : 0, " km")))), /*#__PURE__*/React.createElement("div", {
-    style: {
       background: C.card,
       border: `1px solid ${C.line}`,
       borderRadius: 6,
       padding: 16,
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between",
-    style: {
-      marginBottom: 10
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex",
-    style: {
-      gap: 5
-    }
-  }, ["canone", "margine"].map(x => /*#__PURE__*/React.createElement("button", {
-    key: x,
-    onClick: () => setVista(x),
-    style: {
-      padding: "4px 11px",
-      borderRadius: 4,
-      cursor: "pointer",
-      fontSize: 11.5,
-      fontFamily: FONT,
-      border: `1px solid ${x === vista ? C.ink : C.line}`,
-      background: x === vista ? C.ink : "#fff",
-      color: x === vista ? "#fff" : C.ink2
-    }
-  }, x === "canone" ? "Canone al cliente" : "Margine Flee"))), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap items-center",
-    style: {
-      gap: 14,
-      fontSize: 11,
-      color: C.ink2
-    }
-  }, serie.map(s => /*#__PURE__*/React.createElement("span", {
-    key: s.k,
-    className: "flex items-center",
-    style: {
-      gap: 5
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 14,
-      height: 3,
-      background: s.col,
-      display: "inline-block"
-    }
-  }), s.lab)), vista === "canone" && v.ay > 0 && /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center",
-    style: {
-      gap: 5
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 14,
-      height: 3,
-      background: C.ayv,
-      display: "inline-block"
-    }
-  }), "Ayvens"))), /*#__PURE__*/React.createElement("svg", {
-    viewBox: `0 0 ${W} ${H}`,
-    style: {
-      width: "100%",
-      height: "auto",
-      display: "block"
-    }
-  }, [0, 0.25, 0.5, 0.75, 1].map(f => {
-    const e = yMin + (yMax - yMin) * f;
-    return /*#__PURE__*/React.createElement("g", {
-      key: f
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: PL,
-      y1: Y(e),
-      x2: W - PR,
-      y2: Y(e),
-      stroke: C.line
-    }), /*#__PURE__*/React.createElement("text", {
-      x: PL - 7,
-      y: Y(e) + 4,
-      textAnchor: "end",
-      fontSize: "10",
-      fill: C.mute,
-      fontFamily: MONO
-    }, Math.round(e)));
-  }), yMin < 0 && /*#__PURE__*/React.createElement("line", {
-    x1: PL,
-    y1: Y(0),
-    x2: W - PR,
-    y2: Y(0),
-    stroke: C.ink2,
-    strokeWidth: "1.2"
-  }), [0, 250, 500, 750, 1000, 1250].map(q => /*#__PURE__*/React.createElement("text", {
-    key: q,
-    x: X(q),
-    y: H - PB + 15,
-    textAnchor: "middle",
-    fontSize: "10",
-    fill: C.mute,
-    fontFamily: MONO
-  }, q)), /*#__PURE__*/React.createElement("text", {
-    x: (PL + W - PR) / 2,
-    y: H - 3,
-    textAnchor: "middle",
-    fontSize: "10.5",
-    fill: C.ink2
-  }, "km percorsi al mese"), /*#__PURE__*/React.createElement("rect", {
-    x: X(v.kmin),
-    y: PT,
-    width: X(v.kmax) - X(v.kmin),
-    height: H - PT - PB,
-    fill: C.nuovo,
-    opacity: "0.045"
-  }), /*#__PURE__*/React.createElement("text", {
-    x: X(v.kmin) + 4,
-    y: PT + 11,
-    fontSize: "9.5",
-    fill: C.mute,
-    fontFamily: MONO
-  }, "km reali ", v.kmin, "–", v.kmax), vista === "canone" && v.ay > 0 && /*#__PURE__*/React.createElement("line", {
-    x1: PL,
-    y1: Y(v.ay),
-    x2: W - PR,
-    y2: Y(v.ay),
-    stroke: C.ayv,
-    strokeWidth: "2",
-    strokeDasharray: "6 4"
-  }), serie.map(s => /*#__PURE__*/React.createElement("path", {
-    key: s.k,
-    d: path(s.f),
-    fill: "none",
-    stroke: s.col,
-    strokeWidth: "2.5"
-  })), /*#__PURE__*/React.createElement("line", {
-    x1: X(kmP),
-    y1: PT,
-    x2: X(kmP),
-    y2: H - PB,
-    stroke: C.ink,
-    opacity: "0.3"
-  }), serie.map(s => /*#__PURE__*/React.createElement("circle", {
-    key: s.k,
-    cx: X(kmP),
-    cy: Y(s.f(kmP)),
-    r: "4.5",
-    fill: s.col,
-    stroke: "#fff",
-    strokeWidth: "2"
-  })), /*#__PURE__*/React.createElement("circle", {
-    cx: X(v.km),
-    cy: H - PB,
-    r: "3.5",
-    fill: C.ink
-  }), /*#__PURE__*/React.createElement("text", {
-    x: X(v.km),
-    y: H - PB - 6,
-    textAnchor: "middle",
-    fontSize: "9.5",
-    fill: C.ink,
-    fontFamily: MONO
-  }, "media ", v.km)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between",
-    style: {
-      marginBottom: 3
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11.5,
-      color: C.ink2
-    }
-  }, "Km al mese"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO,
-      fontSize: 13,
-      fontWeight: 600
-    }
-  }, kmP, " km")), /*#__PURE__*/React.createElement("input", {
-    type: "range",
-    min: 0,
-    max: KM_MAX,
-    step: 10,
-    value: kmP,
-    onChange: e => setKmP(parseInt(e.target.value))
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap",
-    style: {
-      gap: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: "1 1 330px",
-      background: C.card,
-      border: `1px solid ${C.line}`,
-      borderRadius: 6,
-      padding: 16
-    }
-  }, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      fontSize: 14,
-      fontWeight: 600,
-      margin: "0 0 10px"
-    }
-  }, "Dove mettere il margine"), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap",
-    style: {
-      gap: 5,
-      marginBottom: 14
-    }
-  }, Object.keys(SCENARI).map(s => /*#__PURE__*/React.createElement("button", {
-    key: s,
-    onClick: () => applica(s),
-    style: {
-      padding: "5px 10px",
-      borderRadius: 4,
-      cursor: "pointer",
-      fontSize: 11.5,
-      fontFamily: FONT,
-      border: `1px solid ${s === scen ? C.nuovo : C.line}`,
-      background: s === scen ? C.nuovo : "#fff",
-      color: s === scen ? "#fff" : C.ink2
-    }
-  }, s))), /*#__PURE__*/React.createElement(Slider, {
-    lab: "Margine target sul canone",
-    val: margPct,
-    set: lib(setMargPct),
-    mn: 0,
-    mx: 25,
-    st: 1,
-    u: "%"
-  }), /*#__PURE__*/React.createElement(Slider, {
-    lab: "Quota del margine caricata sul km",
-    val: quota,
-    set: lib(setQuota),
-    mn: 0,
-    mx: 100,
-    st: 5,
-    u: "%"
-  }), /*#__PURE__*/React.createElement(Slider, {
-    lab: "Km inclusi nella rata fissa",
-    val: kmIncl,
-    set: lib(setKmIncl),
-    mn: 0,
-    mx: 800,
-    st: 25,
-    u: "km"
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      paddingTop: 10,
-      borderTop: `1px solid ${C.line}`,
-      fontSize: 11.5,
-      lineHeight: 1.7,
-      color: C.ink2
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "Costo fornitura"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, eur(v.fo, 2))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "Cost-to-serve"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, eur(cts, 2))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between",
-    style: {
-      fontWeight: 600,
-      color: C.ink
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "Margine a ", v.km, " km"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, eur(calc.M, 2))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "· sulla rata fissa"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, eur(calc.margFisso, 2))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "· sul km"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, calc.mkKm.toFixed(4), " €/km")), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between",
-    style: {
-      fontWeight: 600,
-      color: C.ink,
-      marginTop: 4
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "Rata fissa nuova"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, eur(calc.fissaNew, 2))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "Rata fissa attuale"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, eur(v.fissa, 2))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "Tariffa Generali"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontFamily: MONO
-    }
-  }, v.ir.toFixed(4), " €/km")))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: "2 1 430px",
-      background: C.card,
-      border: `1px solid ${C.line}`,
-      borderRadius: 6,
-      padding: 16
+      marginTop: 12
     }
   }, /*#__PURE__*/React.createElement("h2", {
     style: {
@@ -1860,13 +910,13 @@ function SimulatoreFlee() {
       fontWeight: 600,
       margin: "0 0 4px"
     }
-  }, "Tutti i modelli ai km medi reali"), /*#__PURE__*/React.createElement("p", {
+  }, "Margine per durata, e quanto potremmo pagare"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 11.5,
       color: C.mute,
       margin: "0 0 10px"
     }
-  }, "Con i parametri impostati a sinistra."), /*#__PURE__*/React.createElement("table", {
+  }, "La rata massima \\u00e8 il prezzo oltre il quale non conviene firmare col fornitore, al mark-up impostato."), /*#__PURE__*/React.createElement("table", {
     style: {
       width: "100%",
       borderCollapse: "collapse",
@@ -1884,87 +934,84 @@ function SimulatoreFlee() {
     }
   }, "Modello"), /*#__PURE__*/React.createElement("th", {
     style: {
-      textAlign: "right"
+      textAlign: "left"
     }
-  }, "n"), /*#__PURE__*/React.createElement("th", {
+  }, "Fornitore"), /*#__PURE__*/React.createElement("th", {
     style: {
       textAlign: "right"
     }
-  }, "km"), /*#__PURE__*/React.createElement("th", {
+  }, "36 mesi"), /*#__PURE__*/React.createElement("th", {
     style: {
       textAlign: "right"
     }
-  }, "Marg. att."), /*#__PURE__*/React.createElement("th", {
+  }, "48 mesi"), /*#__PURE__*/React.createElement("th", {
     style: {
       textAlign: "right"
     }
-  }, "Marg. new"), /*#__PURE__*/React.createElement("th", {
+  }, "paghiamo"), /*#__PURE__*/React.createElement("th", {
     style: {
       textAlign: "right"
     }
-  }, "Prezzo new"), /*#__PURE__*/React.createElement("th", {
+  }, "rata max"), /*#__PURE__*/React.createElement("th", {
     style: {
       textAlign: "right"
     }
-  }, "Ayvens"))), /*#__PURE__*/React.createElement("tbody", {
+  }, "spazio"))), /*#__PURE__*/React.createElement("tbody", {
     style: {
       fontFamily: MONO
     }
-  }, PTF.map(x => {
-    const e = motore(x, x.km);
-    const ma = x.fissa + x.km * x.vp - e.cnk;
-    const mn = e.margNew(x.km);
-    const pn = e.canoneNew(x.km);
+  }, conPrezzo.map(v => {
+    const sp = v.fornMax - v.s.r;
     return /*#__PURE__*/React.createElement("tr", {
-      key: x.m,
+      key: v.m,
       style: {
-        borderTop: `1px solid ${C.line}`,
-        background: x.m === sel ? "#EEF3FB" : "transparent"
+        borderTop: `1px solid ${C.line}`
       }
     }, /*#__PURE__*/React.createElement("td", {
       style: {
         padding: "5px 0",
+        fontFamily: FONT
+      }
+    }, v.m), /*#__PURE__*/React.createElement("td", {
+      style: {
         fontFamily: FONT,
-        fontWeight: x.m === sel ? 600 : 400
+        color: C.mute,
+        fontSize: 10.5
       }
-    }, x.m), /*#__PURE__*/React.createElement("td", {
+    }, v.f), [36, 48].map(d => {
+      const o = v.opz.find(x => x.d === d);
+      return /*#__PURE__*/React.createElement("td", {
+        key: d,
+        style: {
+          textAlign: "right",
+          color: !o ? C.mute : o.marg < 0 ? C.att : C.ok,
+          fontWeight: o && v.s.d === d ? 600 : 400
+        }
+      }, o ? eur(o.marg) : "\u2014");
+    }), /*#__PURE__*/React.createElement("td", {
       style: {
         textAlign: "right",
         color: C.mute
       }
-    }, x.n), /*#__PURE__*/React.createElement("td", {
-      style: {
-        textAlign: "right",
-        color: C.mute
-      }
-    }, x.km), /*#__PURE__*/React.createElement("td", {
-      style: {
-        textAlign: "right",
-        color: ma < 0 ? C.att : C.ok
-      }
-    }, eur(ma)), /*#__PURE__*/React.createElement("td", {
-      style: {
-        textAlign: "right",
-        color: mn < 0 ? C.att : C.ok
-      }
-    }, eur(mn)), /*#__PURE__*/React.createElement("td", {
+    }, eur(v.s.r)), /*#__PURE__*/React.createElement("td", {
       style: {
         textAlign: "right"
       }
-    }, eur(pn)), /*#__PURE__*/React.createElement("td", {
+    }, eur(v.fornMax)), /*#__PURE__*/React.createElement("td", {
       style: {
         textAlign: "right",
-        color: !x.ay ? C.mute : pn <= x.ay ? C.ok : C.att
+        fontWeight: 600,
+        color: sp < 0 ? C.att : C.ok
       }
-    }, x.ay ? pn <= x.ay ? "sotto" : "sopra" : "—"));
-  })))))), /*#__PURE__*/React.createElement("p", {
+    }, sp >= 0 ? "+" : "", eur(sp)));
+  })))), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 11,
       color: C.mute,
       marginTop: 14,
       lineHeight: 1.55,
-      maxWidth: 810
+      maxWidth: 820
     }
-  }, "La rata fissa assume un solo contratto per veicolo, senza fermo tra un cliente e l'altro. Ripristino al rientro e penali sui km eccedenti restano fuori. Il confronto regge solo se i prezzi Ayvens sono netto IVA come i vostri: se fossero lordi, gli spazi si riducono di circa il 18%."));
+  }, "Canoni fornitore netto IVA, catalogo luglio-agosto 2026. Prezzo di mercato: quotazione Ayvens dove disponibile, altrimenti stimato dal listino con il rapporto osservato per fascia di prezzo (2,01% sotto i 20mila, 1,75% fino a 30mila, 1,61% fino a 45mila, 1,51% oltre) e ridotto del 7,4% sui 48 mesi. Contratto unico, senza fermo tra un cliente e l\\u2019altro: \\u00e8 l\\u2019ipotesi pi\\u00f9 favorevole. Ripristino al rientro e penali sui km eccedenti restano fuori."));
 }
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(SimulatoreFlee));
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(CatalogoFlee));

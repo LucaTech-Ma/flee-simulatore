@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from "react";
 
 const C = {
-  ink: "#14233F", ink2: "#3A4A68", paper: "#F1F3F6", card: "#FFFFFF",
-  line: "#D8DEE7", att: "#B23A2F", nuovo: "#1B4F9C", ayv: "#D99A2B",
-  ok: "#1E7A5A", mute: "#78849A",
+  ink: "#14233F", ink2: "#3A4A68", paper: "#F1F3F6", card: "#FFFFFF", line: "#D8DEE7",
+  ok: "#1E7A5A", att: "#B23A2F", ayv: "#D99A2B", nuovo: "#1B4F9C", mute: "#78849A",
   forn: "#2E4A7D", cts: "#6E88B5", ass: "#B9C8DF", marg: "#1E7A5A", over: "#B23A2F",
 };
 const FONT = `'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
@@ -11,181 +10,115 @@ const MONO = `'IBM Plex Mono', 'SF Mono', Menlo, monospace`;
 const eur = (n, d = 0) => (n < 0 ? "−€" : "€") + Math.abs(n).toLocaleString("it-IT",
   { minimumFractionDigits: d, maximumFractionDigits: d });
 
-const ORDINI = [
-  { m: "RAV4 HEV", f: "Kinto", r: { 36: 449, 48: 445, 60: 429 }, a: { 36: 787, 48: 705, 60: 667 }, ir: 0.1500, n: 0, stim: true },
-  { m: "MB GLC Coupé", f: "Athlon", r: { 36: 692.62, 48: 651.17 }, a: { 36: 932, 48: 852, 60: 800 }, ir: 0.2180, n: 2, stim: true },
-  { m: "Dacia Bigster", f: "Mobilize", r: { 36: 278.02, 48: 285.67 }, a: { 36: 472, 48: 439, 60: 418 }, ir: 0.1390, n: 1, stim: true },
-  { m: "BMW X1", f: "Athlon", r: { 36: 498.95, 48: 468.73 }, a: { 36: 667, 48: 628, 60: 604 }, ir: 0.1700, n: 2, stim: true },
-  { m: "Toyota C-HR", f: "Kinto", r: { 36: 329, 48: 319, 60: 319 }, a: { 36: 479, 48: 442, 60: 428 }, ir: 0.1465, n: 45, stim: false },
-  { m: "Yaris Cross", f: "Kinto", r: { 36: 299, 48: 289, 60: 279 }, a: { 36: 447, 48: 413, 60: 397 }, ir: 0.1476, n: 29, stim: false },
-  { m: "Aygo X Hybrid", f: "Kinto", r: { 36: 279, 48: 259, 60: 229 }, a: { 36: 381, 48: 346, 60: 334 }, ir: 0.1260, n: 67, stim: false },
-  { m: "Alfa Tonale", f: "Leasys", r: { 36: 414.06, 48: 397.18 }, a: { 36: 508, 48: 478, 60: 465 }, ir: 0.1433, n: 6, stim: false },
-  { m: "Pandina Hybrid", f: "Leasys", r: { 36: 206.48, 48: 186.67 }, a: { 36: 275, 48: 259, 60: 243 }, ir: 0.1220, n: 1, stim: true },
-  { m: "Renault Clio", f: "Mobilize", r: { 36: 273.18, 48: 254.48 }, a: { 36: 323, 48: 310, 60: 296 }, ir: 0.1178, n: 15, stim: false },
+/* Catalogo luglio-agosto 2026. r36/r48 = canone fornitore netto IVA. ir = tariffa assicurativa €/km.
+   tc = giorni di consegna (0 = ignoto). stk = stock: -1 ignoto, -2 disponibile senza conteggio,
+   0 solo su ordine, n unità. a36/a48 = prezzo Ayvens, 10.000 km/anno, anticipo zero: reale dove quotato nel catalogo broker
+   di settembre, altrimenti stimato dal listino per fascia. */
+const CATALOGO = [
+  { m: "MB GLC COUPÈ GLC 220d MHEV 4M…", f: "Athlon", li: 61655, ir: 0.216, r36: 665.04, r48: 631.6, a36: 932, a48: 852, src: "reale", seg: "Premium", tc: 180, stk: 0 },
+  { m: "Q5 TDI 150kW quattro S tronic…", f: "Leasys", li: 55751, ir: 0.169, r36: 700.17, r48: 704.73, a36: 862.81, a48: 763.28, src: "reale", seg: "Premium", tc: 0, stk: -1 },
+  { m: "MB GLC GLC 200 4M Mild Hyb. A…", f: "Athlon", li: 53711, ir: 0.216, r36: 652.14, r48: 609.49, a36: 969.0, a48: 870.92, src: "reale", seg: "Premium", tc: 200, stk: 0 },
+  { m: "Audi Q3 SPORTBACK TDI 110 kW …", f: "Athlon", li: 41206, ir: 0.169, r36: 523.83, r48: 494.72, a36: 874.09, a48: 757.65, src: "reale", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "Audi Q3 SPORTBACK TFSI 110 Kw…", f: "Athlon", li: 40141, ir: 0.169, r36: 526.24, r48: 498.69, a36: 836.51, a48: 752.54, src: "reale", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "Audi Q3 TDI 110 kW S tronic B…", f: "Athlon", li: 39796, ir: 0.169, r36: 581.83, r48: 535.66, a36: 689.5, a48: 624.82, src: "reale", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "BMW X1 sDrive 18d X-Line DCT", f: "Athlon", li: 39361, ir: 0.169, r36: 480.81, r48: 454.45, a36: 667, a48: 628, src: "reale", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "Audi Q3 TFSI 110 kW S tronic …", f: "Athlon", li: 38730, ir: 0.169, r36: 563.64, r48: 526.65, a36: 803.87, a48: 722.71, src: "reale", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "DS 7 BlueHDi 130 Automatica P…", f: "Leasys", li: 37566, ir: 0.169, r36: 385.73, r48: 392.65, a36: 652.99, a48: 612.16, src: "reale", seg: "SUV medi", tc: 0, stk: -1 },
+  { m: "RAV4 2.5 HEV E-CVT", f: "Kinto", li: 37164, ir: 0.169, r36: 445.0, r48: 445.0, a36: 787, a48: 705, src: "reale", seg: "SUV medi", tc: 90, stk: 8 },
+  { m: "TIGUAN 2.0 TDI 110KW SCR Edit…", f: "Leasys", li: 36362, ir: 0.169, r36: 450.52, r48: 430.2, a36: 840.06, a48: 732.06, src: "reale", seg: "SUV medi", tc: 0, stk: -1 },
+  { m: "TESLA MODEL 3 75 kWh Premium …", f: "Athlon", li: 36057, ir: 0.169, r36: 658.52, r48: 586.89, a36: 793.67, a48: 711.82, src: "simile", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "Jeep COMPASS 1.2 Turbo MHEV 1…", f: "Leasys", li: 33270, ir: 0.169, r36: 503.79, r48: 496.27, a36: 653.81, a48: 592.39, src: "reale", seg: "SUV medi", tc: 0, stk: -1 },
+  { m: "LBX 1.5 136 Emotion 2WD", f: "Kinto", li: 33238, ir: 0.144, r36: 385.0, r48: 355.0, a36: 584.79, a48: 531.94, src: "reale", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "BYD SEAL U DM-I 1.5 217cv Boo…", f: "Athlon", li: 32787, ir: 0.144, r36: 482.85, r48: 446.38, a36: 586.44, a48: 532.43, src: "reale", seg: "SUV medi", tc: 180, stk: 0 },
+  { m: "C10 HYBRID 1.5 28.4KWH Design", f: "Leasys", li: 32049, ir: 0.144, r36: 437.06, r48: 459.48, a36: 632.56, a48: 549.09, src: "reale", seg: "SUV medi", tc: 0, stk: -1 },
+  { m: "Alfa Romeo TONALE 1.6 Diesel …", f: "Leasys", li: 31844, ir: 0.169, r36: 414.06, r48: 397.18, a36: 602.71, a48: 554.32, src: "reale", seg: "SUV medi", tc: 0, stk: -1 },
+  { m: "Toyota C-HR 1.8 HV E-CVT Trend", f: "Kinto", li: 31230, ir: 0.144, r36: 329.0, r48: 319.0, a36: 479, a48: 442, src: "reale", seg: "SUV medi", tc: 30, stk: 10 },
+  { m: "Audi A3 TFSI 85 kW S tronic B…", f: "Athlon", li: 29313, ir: 0.144, r36: 418.26, r48: 393.54, a36: 585.37, a48: 526.51, src: "simile", seg: "Compatte e crossover", tc: 180, stk: 0 },
+  { m: "NISSAN QASHQAI 1.3 MHEV 158 N…", f: "Athlon", li: 29184, ir: 0.144, r36: 363.87, r48: 347.85, a36: 448.26, a48: 417.82, src: "reale", seg: "Compatte e crossover", tc: 180, stk: 0 },
+  { m: "DACIA BIGSTER Journey  full h…", f: "Mobilize", li: 26683, ir: 0.144, r36: 278.02, r48: 285.67, a36: 472, a48: 439, src: "reale", seg: "Compatte e crossover", tc: 45, stk: -2 },
+  { m: "YARIS CROSS 1.5 HEV ICON E-CVT", f: "Kinto", li: 25779, ir: 0.144, r36: 295.0, r48: 289.0, a36: 447, a48: 413, src: "reale", seg: "Compatte e crossover", tc: 90, stk: 40 },
+  { m: "JUNIOR 1.2 145CV eDCT6 ibrida…", f: "Leasys", li: 25492, ir: 0.144, r36: 304.74, r48: 319.7, a36: 410.22, a48: 383.5, src: "reale", seg: "Compatte e crossover", tc: 0, stk: -1 },
+  { m: "Fiat 600 1.2 110cv Icon", f: "Leasys", li: 21475, ir: 0.144, r36: 338.06, r48: 291.0, a36: 397.45, a48: 370.02, src: "reale", seg: "Compatte e crossover", tc: 0, stk: -1 },
+  { m: "CAPTUR evolution ECO-G 120 MY…", f: "Mobilize", li: 20186, ir: 0.144, r36: 267.05, r48: 250.23, a36: 516.96, a48: 457.19, src: "reale", seg: "Compatte e crossover", tc: 45, stk: -2 },
+  { m: "Yaris Active MY25", f: "Kinto", li: 20164, ir: 0.144, r36: 282.0, r48: 266.0, a36: 459.94, a48: 420.86, src: "reale", seg: "Compatte e crossover", tc: 30, stk: 5 },
+  { m: "Peugeot 208 Style Turbo benzi…", f: "Leasys", li: 18623, ir: 0.122, r36: 248.71, r48: 227.55, a36: 307.79, a48: 295.21, src: "reale", seg: "City car", tc: 0, stk: -1 },
+  { m: "Aygo X 115 Icon e-CVT", f: "Kinto", li: 18361, ir: 0.122, r36: 260.0, r48: 259.0, a36: 381, a48: 346, src: "reale", seg: "City car", tc: 30, stk: 10 },
+  { m: "Fiat GRANDE PANDA Business", f: "Leasys", li: 18320, ir: 0.122, r36: 295.62, r48: 282.43, a36: 350.02, a48: 318.22, src: "reale", seg: "City car", tc: 0, stk: -1 },
+  { m: "Citroen C3 110 cv Automatico …", f: "Leasys", li: 18008, ir: 0.122, r36: 292.21, r48: 285.28, a36: 347.44, a48: 335.96, src: "reale", seg: "City car", tc: 0, stk: -1 },
+  { m: "Fiat 500 Icon", f: "Leasys", li: 17582, ir: 0.122, r36: 276.21, r48: 261.88, a36: 370.21, a48: 332.4, src: "reale", seg: "City car", tc: 0, stk: -1 },
+  { m: "CLIO EVOLUTION TCE 115CV", f: "Mobilize", li: 16088, ir: 0.122, r36: 273.18, r48: 254.48, a36: 323, a48: 310, src: "reale", seg: "City car", tc: 45, stk: -2 },
+  { m: "PANDINA 1.0 FireFly 65cv S&S …", f: "Leasys", li: 14303, ir: 0.122, r36: 206.48, r48: 186.67, a36: 280.11, a48: 262.97, src: "reale", seg: "City car", tc: 0, stk: -1 },
+  { m: "FIAT PANDINA 1.0 FireFly 65cv…", f: "Athlon", li: 14221, ir: 0.122, r36: 277.7, r48: 253.87, a36: 280.11, a48: 262.97, src: "reale", seg: "City car", tc: 60, stk: 10 },
 ];
 
-/* ay = Ayvens 48 mesi, quotatore, netto IVA */
-const PTF = [
-  { m: "Aygo X", n: 67, fissa: 196.33, km: 332, vp: 0.0816, ir: 0.126, fo: 244.07, kmin: 7, kmax: 941, ay: 346 },
-  { m: "C-HR", n: 45, fissa: 219.01, km: 556, vp: 0.0943, ir: 0.1465, fo: 275.41, kmin: 10, kmax: 1241, ay: 442 },
-  { m: "Yaris Cross", n: 29, fissa: 229.79, km: 531, vp: 0.099, ir: 0.1476, fo: 285.14, kmin: 94, kmax: 1034, ay: 413 },
-  { m: "Yaris", n: 28, fissa: 199.86, km: 501, vp: 0.0785, ir: 0.129, fo: 258.80, kmin: 85, kmax: 1197, ay: 0 },
-  { m: "Panda", n: 18, fissa: 157.00, km: 327, vp: 0.0638, ir: 0.1358, fo: 183.06, kmin: 106, kmax: 928, ay: 0 },
-  { m: "Clio", n: 15, fissa: 185.71, km: 413, vp: 0.0793, ir: 0.1178, fo: 235.69, kmin: 120, kmax: 1026, ay: 310 },
-  { m: "208", n: 10, fissa: 198.23, km: 410, vp: 0.0878, ir: 0.1218, fo: 256.66, kmin: 86, kmax: 807, ay: 0 },
-  { m: "Renault 5", n: 6, fissa: 220.45, km: 492, vp: 0.0942, ir: 0.114, fo: 274.01, kmin: 212, kmax: 1080, ay: 0 },
-  { m: "Tonale", n: 6, fissa: 274.85, km: 797, vp: 0.0957, ir: 0.1433, fo: 317.67, kmin: 585, kmax: 1059, ay: 478 },
-  { m: "C3", n: 5, fissa: 197.54, km: 417, vp: 0.0855, ir: 0.1384, fo: 241.66, kmin: 112, kmax: 823, ay: 0 },
-  { m: "Junior", n: 5, fissa: 266.05, km: 314, vp: 0.1106, ir: 0.144, fo: 313.04, kmin: 142, kmax: 476, ay: 0 },
-  { m: "2008", n: 4, fissa: 220.23, km: 493, vp: 0.1033, ir: 0.1685, fo: 303.52, kmin: 14, kmax: 938, ay: 0 },
-  { m: "Captur", n: 4, fissa: 193.43, km: 515, vp: 0.0785, ir: 0.136, fo: 236.59, kmin: 379, kmax: 598, ay: 0 },
-  { m: "3008", n: 4, fissa: 260.34, km: 675, vp: 0.111, ir: 0.1462, fo: 337.63, kmin: 216, kmax: 1058, ay: 0 },
-];
+const SEGMENTI = ["City car", "Compatte e crossover", "SUV medi", "Premium", "n.d."];
+const FORNITORI = ["Kinto", "Leasys", "Mobilize", "Athlon"];
 
-/* quota = % del margine caricata sul km (il resto va sulla rata fissa) */
-const SCENARI = {
-  "A · tutto sul fisso": { quota: 0, kmIncl: 0 },
-  "B · FLEE 3.0": { quota: 50, kmIncl: 250 },
-  "C · tutto sul km": { quota: 100, kmIncl: 0 },
-  "Libero": null,
-};
-const KM_MAX = 1250;
-
-const DURATE = [6, 12, 18, 24, 36, 48, 60];
-const FERMI = { "Best 30gg": 30, "Base 45gg": 45, "Worst 60gg": 60 };
-
-/* quanti contratti da D mesi entrano in S, e quanti mesi si vendono davvero */
-function riempi(S, D, fermoGg) {
-  const F = fermoGg / 30;
-  const npi = Math.floor((S + F) / (D + F));
-  const r = S - npi * (D + F);
-  const n = r >= 0.5 ? npi + 1 : npi;
-  const A = r >= 0.5 ? npi * D + r : npi * D;
-  return { n, A, sa: S / A, persi: S - A };
-}
-/* svalutazione sul prezzo ottenibile: nulla fino a offerte di 12 mesi, poi cresce.
-   Non si applica al primo contratto, che alloca un veicolo nuovo. */
-const svalut = (D, primo, max) => (primo || D <= 12 ? 0 : (max / 100) * ((D - 12) / 48));
-
-export default function SimulatoreFlee() {
-  const [tab, setTab] = useState("ordini");
-  const [cts, setCts] = useState(35);
+export default function CatalogoFlee() {
   const [km, setKm] = useState(400);
-  const [durMode, setDurMode] = useState("best");
-
-  const [selD, setSelD] = useState("Toyota C-HR");
-  const [supD, setSupD] = useState(48);
-  const [fermoN, setFermoN] = useState("Base 45gg");
   const [mkPct, setMkPct] = useState(10);
-  const [svalMax, setSvalMax] = useState(10);
+  const [cts, setCts] = useState(35);
+  const [dur, setDur] = useState("best");
+  const [forn, setForn] = useState([...FORNITORI]);
+  const [segs, setSegs] = useState([...SEGMENTI]);
+  const [prezzi, setPrezzi] = useState({});
+  const [cons, setCons] = useState({});
+  const [stock, setStock] = useState({});
+  const [pesi, setPesi] = useState({ marg: 50, cons: 25, stk: 25 });
+  const [ordine, setOrdine] = useState("score");
 
-  const [sel, setSel] = useState("Aygo X");
-  const [kmP, setKmP] = useState(332);
-  const [scen, setScen] = useState("C · tutto sul km");
-  const [margPct, setMargPct] = useState(10);
-  const [quota, setQuota] = useState(100);
-  const [kmIncl, setKmIncl] = useState(0);
-  const [vista, setVista] = useState("canone");
-
-  /* ---------- ORDINI ---------- */
-  const ord = useMemo(() => ORDINI.map((v) => {
-    const durate = Object.keys(v.r).map(Number);
-    const opz = durate.map((d) => {
-      const forn = v.r[d], ass = km * v.ir, ay = v.a[d];
-      const marg = ay - forn - cts - ass;
-      return { d, forn, ass, ay, marg, pct: marg / ay, markupKm: marg / km };
-    });
-    const scelta = durMode === "best" ? opz.reduce((a, b) => (b.marg > a.marg ? b : a))
-      : (opz.find((o) => o.d === Number(durMode)) || opz.reduce((a, b) => (b.marg > a.marg ? b : a)));
-    return { ...v, opz, s: scelta };
-  }).sort((a, b) => b.s.marg - a.s.marg), [km, cts, durMode]);
-
-  const scalaMax = Math.max(...ord.map((v) => Math.max(v.s.ay, v.s.forn + cts + v.s.ass)));
-  const verdetto = (p) => p >= 0.12 ? ["ORDINA", C.ok] : p >= 0.05 ? ["VALUTA", C.ayv] : ["NON ORDINARE", C.att];
-
-  /* ---------- GRIGLIA DURATE 6-60 ---------- */
-  const vD = ORDINI.find((x) => x.m === selD);
-  const supOk = Object.keys(vD.r).map(Number);
-  const supUse = vD.r[supD] ? supD : supOk[supOk.length - 1];
-  const griglia = useMemo(() => {
-    const CF = vD.r[supUse] + cts;
-    const m = mkPct / 100;
-    return DURATE.filter((D) => D <= supUse).map((D) => {
-      const { n, A, sa, persi } = riempi(supUse, D, FERMI[fermoN]);
-      const fissa = CF * sa;
-      /* markup/km che realizza m% del canone: km·mk = m·(fissa + km·ir + km·mk) */
-      const mkKm = (m * (fissa + km * vD.ir)) / (km * (1 - m));
-      const varRata = km * (vD.ir + mkKm);
-      const canone = fissa + varRata;
-      const sc = svalut(D, false, svalMax);
-      return {
-        D, n, A, sa, persi, fissa, varRata, canone, mkKm, margine: km * mkKm,
-        canoneUsato: canone * (1 - sc), sconto: sc,
-        margineUsato: km * mkKm - canone * sc,
-        ay: vD.a[D] || null,
-      };
-    }).reverse();
-  }, [vD, supUse, cts, km, fermoN, mkPct, svalMax]);
-  const rif = griglia.find((g) => g.D === supUse) || griglia[0];
-
-  /* ---------- PORTAFOGLIO ---------- */
-  const v = PTF.find((x) => x.m === sel);
-  const applica = (nome) => {
-    setScen(nome);
-    const s = SCENARI[nome];
-    if (s) { setQuota(s.quota); setKmIncl(s.kmIncl); }
-  };
-  const lib = (setter) => (x) => { setter(x); setScen("Libero"); };
-
-  /* margine totale al km di riferimento: M = m(costo + km·ir)/(1-m), indipendente dalla ripartizione */
-  const motore = (mod, kmRif) => {
-    const cnk = mod.fo + cts, m = margPct / 100, s = quota / 100;
-    const M = m < 1 ? (m * (cnk + kmRif * mod.ir)) / (1 - m) : 0;
-    const u = Math.max(0, kmRif - kmIncl);
-    const margFisso = u > 0 ? (1 - s) * M : M;
-    const mkKm = u > 0 ? (s * M) / u : 0;
-    const fissaNew = cnk + margFisso + kmIncl * mod.ir;
-    return { cnk, M, margFisso, mkKm, fissaNew,
-      canoneNew: (q) => fissaNew + Math.max(0, q - kmIncl) * (mod.ir + mkKm),
-      margNew: (q) => margFisso + Math.max(0, q - kmIncl) * mkKm };
-  };
+  const toggle = (arr, set, v) => set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
   const calc = useMemo(() => {
-    const e = motore(v, v.km);
-    return {
-      ...e,
-      canoneAtt: (q) => v.fissa + q * (v.vp + v.ir),
-      margAtt: (q) => v.fissa + q * v.vp - e.cnk,
-      sogliaNew: v.ay ? kmIncl + (v.ay - e.fissaNew) / (v.ir + e.mkKm) : null,
-    };
-  }, [v, margPct, quota, kmIncl, cts]);
+    return CATALOGO.map((v) => {
+      const ov = prezzi[v.m];
+      const a36 = ov !== undefined && ov !== "" ? parseFloat(ov) || 0 : v.a36;
+      const a48 = ov !== undefined && ov !== "" ? Math.round((parseFloat(ov) || 0) * 0.926) : v.a48;
+      const opz = [{ d: 36, r: v.r36, a: a36 }, { d: 48, r: v.r48, a: a48 }]
+        .filter((o) => o.r > 0 && o.a > 0)
+        .map((o) => ({ ...o, ass: km * v.ir, marg: o.a - o.r - cts - km * v.ir }));
+      const s = opz.length
+        ? (dur === "best" ? opz.reduce((x, y) => (y.marg > x.marg ? y : x)) : (opz.find((o) => o.d === Number(dur)) || opz[0]))
+        : null;
+      const fornMax = s ? s.a * (1 - mkPct / 100) - cts - km * v.ir : 0;
 
-  const W = 760, H = 300, PL = 54, PR = 14, PT = 14, PB = 36;
-  const serie = vista === "canone"
-    ? [{ k: "a", f: calc.canoneAtt, col: C.att, lab: "Pricing attuale" }, { k: "n", f: calc.canoneNew, col: C.nuovo, lab: "Pricing nuovo" }]
-    : [{ k: "a", f: calc.margAtt, col: C.att, lab: "Margine attuale" }, { k: "n", f: calc.margNew, col: C.nuovo, lab: "Margine nuovo" }];
-  const vals = []; for (let q = 0; q <= KM_MAX; q += 50) serie.forEach((s) => vals.push(s.f(q)));
-  if (vista === "canone" && v.ay) vals.push(v.ay);
-  const yMax = Math.max(...vals) * 1.08, yMin = Math.min(0, Math.min(...vals) * 1.15);
-  const X = (q) => PL + (q / KM_MAX) * (W - PL - PR);
-  const Y = (e) => H - PB - ((e - yMin) / (yMax - yMin)) * (H - PT - PB);
-  const path = (f) => { let d = ""; for (let q = 0; q <= KM_MAX; q += 25) d += (q ? "L" : "M") + X(q).toFixed(1) + " " + Y(f(q)).toFixed(1) + " "; return d; };
+      const tcOv = cons[v.m], stOv = stock[v.m];
+      const tc = tcOv !== undefined && tcOv !== "" ? parseInt(tcOv) || 0 : v.tc;
+      const stk = stOv !== undefined && stOv !== "" ? parseInt(stOv) : v.stk;
+      const pct = s ? s.marg / s.a : 0;
+      const sMarg = s ? Math.max(0, Math.min(100, (pct / 0.25) * 100)) : 0;
+      const sCons = tc > 0 ? Math.max(0, Math.min(100, ((200 - tc) / 170) * 100)) : null;
+      const sStk = stk === -1 ? null : stk === -2 ? 70 : stk === 0 ? 0 : Math.min(100, 40 + stk * 3);
+      const pesoTot = pesi.marg + (sCons !== null ? pesi.cons : 0) + (sStk !== null ? pesi.stk : 0);
+      const score = s && pesoTot > 0
+        ? (sMarg * pesi.marg + (sCons ?? 0) * (sCons !== null ? pesi.cons : 0) + (sStk ?? 0) * (sStk !== null ? pesi.stk : 0)) / pesoTot
+        : null;
+      const parziale = sCons === null || sStk === null;
 
-  const Tab = ({ id, children }) => (
-    <button onClick={() => setTab(id)} style={{
-      padding: "7px 16px", borderRadius: 5, cursor: "pointer", fontSize: 13, fontFamily: FONT,
-      border: `1px solid ${tab === id ? C.ink : C.line}`, background: tab === id ? C.ink : "#fff",
-      color: tab === id ? "#fff" : C.ink2, fontWeight: tab === id ? 600 : 400,
+      return { ...v, a36, a48, opz, s, fornMax, tc, stk, sMarg, sCons, sStk, score, parziale,
+        manuale: ov !== undefined && ov !== "" };
+    });
+  }, [km, cts, dur, mkPct, prezzi, cons, stock, pesi]);
+
+  const visibili = calc.filter((v) => forn.includes(v.f) && segs.includes(v.seg));
+  const conPrezzo = visibili.filter((v) => v.s).sort((a, b) =>
+    ordine === "score" ? (b.score ?? -1) - (a.score ?? -1)
+    : ordine === "consegna" ? (a.tc || 999) - (b.tc || 999)
+    : b.s.marg / b.s.a - a.s.marg / a.s.a);
+  const senzaPrezzo = visibili.filter((v) => !v.s);
+  const ordinati = [...conPrezzo, ...senzaPrezzo];
+  const scala = Math.max(...conPrezzo.map((v) => Math.max(v.s.a, v.s.r + cts + v.s.ass)), 1);
+  const verdetto = (p) => (p >= 0.12 ? ["ORDINA", C.ok] : p >= 0.05 ? ["VALUTA", C.ayv] : ["NO", C.att]);
+  const nOrd = conPrezzo.filter((v) => v.s.marg / v.s.a >= mkPct / 100).length;
+  const nStimOrd = conPrezzo.filter((v) => v.s.marg / v.s.a >= mkPct / 100 && !v.manuale && v.src !== "reale").length;
+  const nReali = visibili.filter((v) => v.src === "reale" || v.manuale).length;
+  const nStim = visibili.filter((v) => !v.manuale && (v.src === "stimato" || v.src === "simile")).length;
+
+  const Chip = ({ on, onClick, children }) => (
+    <button onClick={onClick} style={{
+      padding: "4px 9px", borderRadius: 4, cursor: "pointer", fontSize: 11.5, fontFamily: FONT,
+      border: `1px solid ${on ? C.nuovo : C.line}`, background: on ? C.nuovo : "#fff", color: on ? "#fff" : C.mute,
     }}>{children}</button>
-  );
-  const Slider = ({ lab, val, set, mn, mx, st, u, fmt }) => (
-    <div style={{ marginBottom: 12 }}>
-      <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
-        <span style={{ fontSize: 11.5, color: C.ink2 }}>{lab}</span>
-        <span style={{ fontFamily: MONO, fontSize: 12 }}>{fmt ? fmt(val) : val} {u}</span>
-      </div>
-      <input type="range" min={mn} max={mx} step={st} value={val} onChange={(e) => set(parseFloat(e.target.value))} />
-    </div>
   );
 
   return (
@@ -195,507 +128,320 @@ export default function SimulatoreFlee() {
         input:focus-visible,button:focus-visible{outline:2px solid ${C.nuovo};outline-offset:2px;}`}</style>
 
       <h1 style={{ fontSize: 21, fontWeight: 600, letterSpacing: "-.02em", margin: 0 }}>
-        Cosa ordinare, e cosa fare di quello che abbiamo
+        Catalogo luglio-agosto 2026 · cosa ordinare
       </h1>
-      <div className="flex" style={{ gap: 7, margin: "14px 0" }}>
-        <Tab id="ordini">Vetture da ordinare</Tab>
-        <Tab id="ptf">Portafoglio · 313 contratti</Tab>
-        <Tab id="durate">Durate flessibili 6–60 mesi</Tab>
+      <p style={{ fontSize: 13, color: C.ink2, margin: "5px 0 10px", maxWidth: 760, lineHeight: 1.5 }}>
+        Ogni barra è il prezzo di mercato della vettura. Dentro, dove finisce: quanto al fornitore, quanto alla
+        gestione, quanto all’assicurazione. Quello che avanza è il margine.
+      </p>
+
+      <details style={{
+        background: C.card, border: `1px solid ${C.line}`, borderRadius: 6,
+        padding: "9px 13px", marginBottom: 12, maxWidth: 900, fontSize: 12.3, lineHeight: 1.55, color: C.ink2,
+      }}>
+        <summary style={{ cursor: "pointer", fontWeight: 600, color: C.ink, fontSize: 12.5, listStyle: "none" }}>
+          Come si usa ▾
+        </summary>
+        <div style={{ marginTop: 9, display: "grid", gap: 7 }}>
+          <div>
+            <b style={{ color: C.ink }}>1. Imposta lo scenario.</b> I cursori in alto definiscono le ipotesi comuni a
+            tutte le vetture: percorrenza mensile del cliente, mark-up target, durata del contratto e cost-to-serve.
+            Cambiandoli si ricalcola tutto il catalogo in tempo reale.
+          </div>
+          <div>
+            <b style={{ color: C.ink }}>2. Leggi il margine.</b> Ogni barra è il prezzo di mercato (Ayvens o broker,
+            IVA esclusa). Le sezioni colorate sono i costi certi — fornitura, gestione, assicurazione Generali — e la
+            parte restante è il margine che resta a Flee a quella percorrenza.
+          </div>
+          <div>
+            <b style={{ color: C.ink }}>3. Usa lo score per scegliere.</b> Ogni modello ha un punteggio 0-100 che pesa
+            margine, tempi di consegna e disponibilità a stock. I pesi sono modificabili: se la priorità è consegnare
+            in fretta, alza “Consegna” e la classifica si riordina di conseguenza.
+          </div>
+          <div>
+            <b style={{ color: C.ink }}>4. Correggi i dati.</b> Nella tabella “Dati per modello” il prezzo di mercato è
+            editabile. I valori sono marcati <i>reale</i> (quotazione verificata), <i>stimato</i> (media di segmento) o
+            <i> mancante</i>: sostituendo una stima con una quotazione vera, margine e score si aggiornano subito.
+          </div>
+          <div style={{ color: C.mute, fontSize: 11.5 }}>
+            Le modifiche restano solo in questa sessione: ricaricando la pagina si torna ai valori di partenza.
+            Tutte le tabelle sono ordinate dal modello più conveniente al meno.
+          </div>
+        </div>
+      </details>
+
+      {/* controlli */}
+      <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 14, marginBottom: 12 }}>
+        <div className="flex flex-wrap items-end" style={{ gap: 22, marginBottom: 12 }}>
+          <div style={{ flex: "1 1 220px" }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
+              <span style={{ fontSize: 11.5, color: C.ink2 }}>Percorrenza del cliente</span>
+              <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600 }}>{km} km/mese</span>
+            </div>
+            <input type="range" min={100} max={1000} step={25} value={km} onChange={(e) => setKm(+e.target.value)} />
+          </div>
+          <div style={{ flex: "1 1 200px" }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
+              <span style={{ fontSize: 11.5, color: C.ink2 }}>Mark-up target</span>
+              <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600 }}>{mkPct}%</span>
+            </div>
+            <input type="range" min={0} max={25} step={1} value={mkPct} onChange={(e) => setMkPct(+e.target.value)} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: C.mute, marginBottom: 5 }}>Durata</div>
+            <div className="flex" style={{ gap: 5 }}>
+              {["best", "36", "48"].map((d) => (
+                <Chip key={d} on={dur === d} onClick={() => setDur(d)}>{d === "best" ? "la migliore" : d + "m"}</Chip>
+              ))}
+            </div>
+          </div>
+          <label className="flex items-center" style={{ gap: 8 }}>
+            <span style={{ fontSize: 11.5, color: C.ink2 }}>Cost-to-serve</span>
+            <input type="number" value={cts} step={5} onChange={(e) => setCts(parseFloat(e.target.value) || 0)}
+              style={{ width: 62, padding: "3px 6px", border: `1px solid ${C.line}`, borderRadius: 3, fontFamily: MONO, fontSize: 12, textAlign: "right" }} />
+          </label>
+        </div>
+        <div className="flex flex-wrap items-end" style={{ gap: 22, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.line}` }}>
+          <div>
+            <div style={{ fontSize: 11, color: C.mute, marginBottom: 5 }}>Peso nello score</div>
+            <div className="flex flex-wrap" style={{ gap: 18 }}>
+              {[["marg", "Margine"], ["cons", "Consegna"], ["stk", "Stock"]].map(([k, lab]) => (
+                <div key={k} style={{ width: 150 }}>
+                  <div className="flex items-center justify-between" style={{ marginBottom: 2 }}>
+                    <span style={{ fontSize: 11, color: C.ink2 }}>{lab}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 11 }}>{pesi[k]}</span>
+                  </div>
+                  <input type="range" min={0} max={100} step={5} value={pesi[k]}
+                    onChange={(e) => setPesi({ ...pesi, [k]: +e.target.value })} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: C.mute, marginBottom: 5 }}>Ordina per</div>
+            <div className="flex" style={{ gap: 5 }}>
+              {[["score", "score"], ["margine", "margine"], ["consegna", "consegna"]].map(([k, l]) => (
+                <Chip key={k} on={ordine === k} onClick={() => setOrdine(k)}>{l}</Chip>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap" style={{ gap: 16 }}>
+          <div className="flex flex-wrap items-center" style={{ gap: 5 }}>
+            <span style={{ fontSize: 11, color: C.mute, marginRight: 3 }}>Fornitore</span>
+            {FORNITORI.map((f) => <Chip key={f} on={forn.includes(f)} onClick={() => toggle(forn, setForn, f)}>{f}</Chip>)}
+          </div>
+          <div className="flex flex-wrap items-center" style={{ gap: 5 }}>
+            <span style={{ fontSize: 11, color: C.mute, marginRight: 3 }}>Segmento</span>
+            {SEGMENTI.map((sg) => <Chip key={sg} on={segs.includes(sg)} onClick={() => toggle(segs, setSegs, sg)}>{sg}</Chip>)}
+          </div>
+        </div>
       </div>
 
-      {tab === "ordini" ? (
-        <>
-          <p style={{ fontSize: 13, color: C.ink2, margin: "0 0 14px", maxWidth: 730, lineHeight: 1.5 }}>
-            Ogni barra è il prezzo Ayvens per quella vettura. Dentro, dove finisce: quanto al fornitore,
-            quanto alla gestione, quanto all&apos;assicurazione. Quello che avanza è il vostro margine.
-          </p>
-
-          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 14, marginBottom: 12 }}>
-            <div className="flex flex-wrap items-end" style={{ gap: 26 }}>
-              <div style={{ flex: "1 1 260px" }}>
-                <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
-                  <span style={{ fontSize: 11.5, color: C.ink2 }}>Percorrenza del cliente</span>
-                  <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600 }}>{km} km/mese</span>
-                </div>
-                <input type="range" min={100} max={1000} step={25} value={km} onChange={(e) => setKm(parseInt(e.target.value))} />
-              </div>
-              <div>
-                <div style={{ fontSize: 11, color: C.mute, marginBottom: 5 }}>Durata fornitura</div>
-                <div className="flex" style={{ gap: 5 }}>
-                  {["best", "36", "48", "60"].map((d) => (
-                    <button key={d} onClick={() => setDurMode(d)} style={{
-                      padding: "5px 10px", borderRadius: 4, cursor: "pointer", fontSize: 11.5, fontFamily: FONT,
-                      border: `1px solid ${durMode === d ? C.nuovo : C.line}`,
-                      background: durMode === d ? C.nuovo : "#fff", color: durMode === d ? "#fff" : C.ink2,
-                    }}>{d === "best" ? "la migliore" : d + "m"}</button>
-                  ))}
-                </div>
-              </div>
-              <label className="flex items-center" style={{ gap: 8 }}>
-                <span style={{ fontSize: 11.5, color: C.ink2 }}>Cost-to-serve</span>
-                <input type="number" value={cts} step={5} onChange={(e) => setCts(parseFloat(e.target.value) || 0)}
-                  style={{ width: 64, padding: "3px 6px", border: `1px solid ${C.line}`, borderRadius: 3, fontFamily: MONO, fontSize: 12, textAlign: "right" }} />
-              </label>
-            </div>
+      {/* sintesi */}
+      <div style={{ background: C.ink, color: "#fff", borderRadius: 6, padding: "16px 22px", marginBottom: 12 }}>
+        <div className="flex flex-wrap items-center" style={{ gap: 14 }}>
+          <div>
+            <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 600 }}>{visibili.length}</div>
+            <div style={{ fontSize: 11, opacity: 0.6 }}>modelli a catalogo</div>
           </div>
-
-          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: "18px 16px" }}>
-            <div className="flex flex-wrap" style={{ gap: 16, marginBottom: 14, fontSize: 11, color: C.ink2 }}>
-              {[["Costo fornitura", C.forn], ["Cost-to-serve", C.cts], ["Assicurazione", C.ass],
-                ["Margine Flee", C.marg], ["Sopra il prezzo di mercato", C.over]].map(([l, col]) => (
-                <span key={l} className="flex items-center" style={{ gap: 5 }}>
-                  <span style={{ width: 11, height: 11, background: col, borderRadius: 2, display: "inline-block" }} />{l}
-                </span>
-              ))}
+          <div style={{ fontSize: 22, opacity: 0.35 }}>›</div>
+          <div>
+            <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 600 }}>{conPrezzo.length}</div>
+            <div style={{ fontSize: 11, opacity: 0.6 }}>confrontabili{senzaPrezzo.length ? `, ${senzaPrezzo.length} senza prezzo` : ""}</div>
+          </div>
+          <div style={{ fontSize: 22, opacity: 0.35 }}>›</div>
+          <div>
+            <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 600, color: "#7FE3B8" }}>{nOrd}</div>
+            <div style={{ fontSize: 11, opacity: 0.6 }}>sopra il {mkPct}%{nStimOrd ? `, di cui ${nStimOrd} su prezzo stimato` : ""}</div>
+          </div>
+          <div style={{ flex: 1 }} />
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontFamily: MONO, fontSize: 15 }}>
+              <span style={{ color: "#7FE3B8" }}>{nReali}</span>
+              <span style={{ opacity: 0.4 }}> / </span>
+              <span style={{ color: "#F0B860" }}>{nStim}</span>
+              <span style={{ opacity: 0.4 }}> / </span>
+              <span style={{ opacity: 0.7 }}>{senzaPrezzo.length}</span>
             </div>
+            <div style={{ fontSize: 11, opacity: 0.6 }}>quotazioni reali / stimate / mancanti</div>
+          </div>
+        </div>
+      </div>
 
-            {ord.map((v) => {
-              const s = v.s, [vd, vc] = verdetto(s.pct);
-              const pc = (x) => `${(x / scalaMax) * 100}%`;
-              const neg = s.marg < 0;
-              return (
-                <div key={v.m} style={{ marginBottom: 15 }}>
-                  <div className="flex items-baseline justify-between" style={{ marginBottom: 4 }}>
-                    <span style={{ fontSize: 12.5, fontWeight: 500 }}>
-                      {v.m}
-                      <span style={{ color: C.mute, fontWeight: 400, fontSize: 11 }}>
-                        {" "}· {v.f} · {s.d} mesi{v.n > 0 ? ` · ${v.n} in ptf` : " · mai ordinata"}
-                        {v.stim && <span style={{ color: C.ayv }}> · dati stimati</span>}
-                      </span>
-                    </span>
-                    <span className="flex items-baseline" style={{ gap: 10 }}>
-                      <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color: neg ? C.att : C.ok }}>
-                        {eur(s.marg)} <span style={{ fontSize: 10.5, opacity: 0.7 }}>({(s.pct * 100).toFixed(1)}%)</span>
-                      </span>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: vc, letterSpacing: ".04em" }}>{vd}</span>
-                    </span>
-                  </div>
-                  <div style={{ position: "relative", height: 26, background: C.paper, borderRadius: 3 }}>
-                    <div className="flex" style={{ height: "100%", borderRadius: 3, overflow: "hidden" }}>
-                      <div style={{ width: pc(s.forn), background: C.forn }} title={`Fornitura ${eur(s.forn)}`} />
-                      <div style={{ width: pc(cts), background: C.cts }} title={`Cost-to-serve ${eur(cts)}`} />
-                      <div style={{ width: pc(s.ass), background: C.ass }} title={`Assicurazione ${eur(s.ass)}`} />
-                      <div style={{ width: pc(Math.abs(s.marg)), background: neg ? C.over : C.marg }}
-                        title={`${neg ? "Sopra mercato" : "Margine"} ${eur(s.marg)}`} />
-                    </div>
-                    <div style={{ position: "absolute", left: pc(s.ay), top: -3, bottom: -3, width: 2, background: C.ayv }} />
-                    <div style={{ position: "absolute", left: pc(s.ay), top: -16, fontSize: 9.5, fontFamily: MONO, color: C.ayv, transform: "translateX(-50%)" }}>
-                      {eur(s.ay)}
-                    </div>
-                  </div>
+      {/* barre */}
+      <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: "16px 16px 10px" }}>
+        <div className="flex flex-wrap" style={{ gap: 15, marginBottom: 14, fontSize: 11, color: C.ink2 }}>
+          {[["Costo fornitura", C.forn], ["Cost-to-serve", C.cts], ["Assicurazione", C.ass],
+            ["Margine", C.marg], ["Sopra il mercato", C.over]].map(([l, col]) => (
+            <span key={l} className="flex items-center" style={{ gap: 5 }}>
+              <span style={{ width: 11, height: 11, background: col, borderRadius: 2, display: "inline-block" }} />{l}
+            </span>
+          ))}
+        </div>
+        {conPrezzo.map((v) => {
+          const s = v.s, pct = s.marg / s.a, [vd, vc] = verdetto(pct), neg = s.marg < 0;
+          const w = (x) => `${(x / scala) * 100}%`;
+          return (
+            <div key={v.m} style={{ marginBottom: 13 }}>
+              <div className="flex items-baseline justify-between" style={{ marginBottom: 3 }}>
+                <span style={{ fontSize: 12, fontWeight: 500 }}>
+                  {v.m}
+                  <span style={{ color: C.mute, fontWeight: 400, fontSize: 10.5 }}>
+                    {" · "}{v.f}{" · "}{s.d} mesi{v.seg !== "n.d." ? " · " + v.seg : ""}
+                    {v.tc ? ` · ${v.tc} gg` : " · consegna n.d."}
+                    {v.stk === -1 ? "" : v.stk === -2 ? " · a stock" : v.stk === 0 ? " · su ordine" : ` · ${v.stk} a stock`}
+                    {v.manuale ? <span style={{ color: C.nuovo }}>{" · prezzo inserito"}</span>
+                      : v.src === "stimato" ? <span style={{ color: C.ayv }}>{" · prezzo stimato"}</span>
+                      : v.src === "simile" ? <span style={{ color: C.ayv }}>{" · da modello simile"}</span> : null}
+                  </span>
+                </span>
+                <span className="flex items-baseline" style={{ gap: 9 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: neg ? C.att : C.ok }}>
+                    {eur(s.marg)} <span style={{ fontSize: 10, opacity: 0.7 }}>({(pct * 100).toFixed(1)}%)</span>
+                  </span>
+                  <span style={{ fontSize: 9.5, fontWeight: 600, color: vc, letterSpacing: ".04em", width: 52, textAlign: "right" }}>{vd}</span>
+                  <span title={v.score === null ? "dati insufficienti" : `margine ${v.sMarg.toFixed(0)} · consegna ${v.sCons === null ? "n.d." : v.sCons.toFixed(0)} · stock ${v.sStk === null ? "n.d." : v.sStk.toFixed(0)}`}
+                    style={{
+                      fontFamily: MONO, fontSize: 12, fontWeight: 600, width: 42, textAlign: "center",
+                      padding: "1px 0", borderRadius: 3, color: "#fff",
+                      background: v.score === null ? C.mute : v.score >= 60 ? C.ok : v.score >= 40 ? C.ayv : C.att,
+                      opacity: v.parziale ? 0.6 : 1,
+                    }}>
+                    {v.score === null ? "—" : Math.round(v.score)}
+                  </span>
+                </span>
+              </div>
+              <div style={{ position: "relative", height: 22, background: C.paper, borderRadius: 3 }}>
+                <div className="flex" style={{ height: "100%", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ width: w(s.r), background: C.forn }} title={`Fornitura ${eur(s.r)}`} />
+                  <div style={{ width: w(cts), background: C.cts }} title={`Cost-to-serve ${eur(cts)}`} />
+                  <div style={{ width: w(s.ass), background: C.ass }} title={`Assicurazione ${eur(s.ass)}`} />
+                  <div style={{ width: w(Math.abs(s.marg)), background: neg ? C.over : C.marg }} />
                 </div>
+                <div style={{ position: "absolute", left: w(s.a), top: -3, bottom: -3, width: 2, background: C.ayv }} />
+              </div>
+            </div>
+          );
+        })}
+        {!conPrezzo.length && <div style={{ fontSize: 12, color: C.mute, padding: "10px 0" }}>Nessun modello con i filtri selezionati.</div>}
+      </div>
+
+      {/* dati per modello — editabili */}
+      <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16, marginTop: 12 }}>
+        <div className="flex items-baseline justify-between" style={{ marginBottom: 4 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Dati per modello</h2>
+          {(Object.keys(prezzi).length + Object.keys(cons).length + Object.keys(stock).length) > 0 && (
+            <button onClick={() => { setPrezzi({}); setCons({}); setStock({}); }} style={{
+              fontSize: 11, padding: "3px 9px", border: `1px solid ${C.line}`, borderRadius: 3,
+              background: "#fff", color: C.ink2, cursor: "pointer", fontFamily: FONT,
+            }}>Azzera modifiche</button>
+          )}
+        </div>
+        <p style={{ fontSize: 11.5, color: C.mute, margin: "0 0 10px" }}>
+          Prezzo di mercato a 10.000 km/anno e anticipo zero; il valore a 48 mesi si ricalcola al 92,8% di quello a 36.
+          Per lo stock scrivi il numero di unità, oppure 0 se la vettura è solo su ordine.
+        </p>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
+          <thead>
+            <tr style={{ color: C.mute, fontSize: 10 }}>
+              <th style={{ textAlign: "left", padding: "3px 0" }}>Modello</th>
+              <th style={{ textAlign: "left" }}>Fornitore</th>
+              <th style={{ textAlign: "right" }}>36 mesi</th>
+              <th style={{ textAlign: "right" }}>48 mesi</th>
+              <th style={{ textAlign: "left", paddingLeft: 8 }}>Origine</th>
+              <th style={{ textAlign: "right", paddingLeft: 8 }}>Prezzo 36m</th>
+              <th style={{ textAlign: "right", paddingLeft: 14 }}>Consegna gg</th>
+              <th style={{ textAlign: "right" }}>Stock</th>
+              <th style={{ textAlign: "right", paddingLeft: 10 }}>Score</th>
+            </tr>
+          </thead>
+          <tbody style={{ fontFamily: MONO }}>
+            {ordinati.map((v) => {
+              const et = v.manuale ? ["inserito", C.nuovo] : v.src === "reale" ? ["reale", C.ok]
+                : v.src === "simile" ? ["da simile", C.ayv] : v.src === "stimato" ? ["stimato", C.ayv] : ["mancante", C.att];
+              const inp = (val, ph, on, mod, w) => (
+                <input type="number" placeholder={ph} value={val} onChange={on}
+                  style={{ width: w, padding: "2px 6px", border: `1px solid ${mod ? C.nuovo : C.line}`, borderRadius: 3,
+                    fontFamily: MONO, fontSize: 11.5, textAlign: "right", background: mod ? "#EEF3FB" : "#fff" }} />
+              );
+              return (
+                <tr key={v.m} style={{ borderTop: `1px solid ${C.line}` }}>
+                  <td style={{ padding: "4px 0", fontFamily: FONT }}>{v.m}</td>
+                  <td style={{ fontFamily: FONT, color: C.mute, fontSize: 10.5 }}>{v.f}</td>
+                  <td style={{ textAlign: "right" }}>{v.a36 ? eur(v.a36) : "—"}</td>
+                  <td style={{ textAlign: "right", color: C.mute }}>{v.a48 ? eur(v.a48) : "—"}</td>
+                  <td style={{ paddingLeft: 8, fontFamily: FONT, fontSize: 10.5, color: et[1] }}>{et[0]}</td>
+                  <td style={{ textAlign: "right", paddingLeft: 8 }}>
+                    {inp(prezzi[v.m] ?? "", v.a36 ? String(v.a36) : "€", (e) => setPrezzi({ ...prezzi, [v.m]: e.target.value }), v.manuale, 76)}
+                  </td>
+                  <td style={{ textAlign: "right", paddingLeft: 14 }}>
+                    {inp(cons[v.m] ?? "", v.tc ? String(v.tc) : "gg", (e) => setCons({ ...cons, [v.m]: e.target.value }), cons[v.m] !== undefined && cons[v.m] !== "", 60)}
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    {inp(stock[v.m] ?? "", v.stk === -1 ? "n.d." : v.stk === -2 ? "stock" : String(v.stk), (e) => setStock({ ...stock, [v.m]: e.target.value }), stock[v.m] !== undefined && stock[v.m] !== "", 60)}
+                  </td>
+                  <td style={{ textAlign: "right", paddingLeft: 10, fontWeight: 600,
+                    color: v.score === null ? C.mute : v.score >= 60 ? C.ok : v.score >= 40 ? C.ayv : C.att }}>
+                    {v.score === null ? "—" : Math.round(v.score)}{v.parziale && v.score !== null ? "*" : ""}
+                  </td>
+                </tr>
               );
             })}
-            <div style={{ fontSize: 11, color: C.mute, marginTop: 10, lineHeight: 1.5 }}>
-              La linea arancione è il prezzo Ayvens. Se la barra la supera, a quel chilometraggio siete
-              fuori mercato anche regalando il servizio.
-            </div>
-          </div>
+          </tbody>
+        </table>
+        <div style={{ marginTop: 10, fontSize: 11, color: C.mute, lineHeight: 1.5 }}>
+          Lo score va da 0 a 100 e pesa tre cose: il <strong>margine</strong> (0 a zero, 100 al 25%), la
+          <strong> consegna</strong> (100 a 30 giorni, 0 a 200) e lo <strong>stock</strong> (0 se solo su ordine,
+          100 da venti unità in su). I pesi si regolano in alto. L’asterisco segnala uno score calcolato senza
+          tutti e tre i dati: per i tredici modelli Leasys mancano consegna e stock.
+        </div>
+      </div>
 
-          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16, marginTop: 12 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 10px" }}>La scelta della durata, vettura per vettura</h2>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
-              <thead>
-                <tr style={{ color: C.mute, fontSize: 10 }}>
-                  <th style={{ textAlign: "left", padding: "3px 0" }}>Vettura</th>
-                  <th style={{ textAlign: "right" }}>36 mesi</th>
-                  <th style={{ textAlign: "right" }}>48 mesi</th>
-                  <th style={{ textAlign: "right" }}>60 mesi</th>
-                  <th style={{ textAlign: "right" }}>migliore</th>
-                </tr>
-              </thead>
-              <tbody style={{ fontFamily: MONO }}>
-                {ord.map((v) => {
-                  const best = v.opz.reduce((a, b) => (b.marg > a.marg ? b : a));
-                  return (
-                    <tr key={v.m} style={{ borderTop: `1px solid ${C.line}` }}>
-                      <td style={{ padding: "5px 0", fontFamily: FONT }}>{v.m}</td>
-                      {[36, 48, 60].map((d) => {
-                        const o = v.opz.find((x) => x.d === d);
-                        return (
-                          <td key={d} style={{
-                            textAlign: "right",
-                            color: !o ? C.mute : o.marg < 0 ? C.att : C.ok,
-                            fontWeight: o && o.d === best.d ? 600 : 400,
-                          }}>{o ? eur(o.marg) : "non offerta"}</td>
-                        );
-                      })}
-                      <td style={{ textAlign: "right", fontFamily: FONT, fontWeight: 600 }}>{best.d} mesi</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : tab === "durate" ? (
-        <>
-          <p style={{ fontSize: 13, color: C.ink2, margin: "0 0 14px", maxWidth: 760, lineHeight: 1.5 }}>
-            L&apos;impegno col fornitore dura {supUse} mesi e va pagato tutto. Un contratto corto significa
-            più cambi cliente, quindi più mesi di piazzale: quei mesi li devono pagare i mesi venduti.
-            È da lì, e non dalla flessibilità, che nasce il sovrapprezzo sulle durate brevi.
-          </p>
-
-          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 14, marginBottom: 12 }}>
-            <div className="flex flex-wrap" style={{ gap: 5, marginBottom: 12 }}>
-              {ORDINI.map((x) => (
-                <button key={x.m} onClick={() => setSelD(x.m)} style={{
-                  padding: "5px 9px", borderRadius: 4, cursor: "pointer", fontSize: 11.5, fontFamily: FONT,
-                  border: `1px solid ${x.m === selD ? C.nuovo : C.line}`,
-                  background: x.m === selD ? C.nuovo : "#fff", color: x.m === selD ? "#fff" : C.ink2,
-                }}>{x.m}</button>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-end" style={{ gap: 22 }}>
-              <div>
-                <div style={{ fontSize: 11, color: C.mute, marginBottom: 5 }}>Impegno col fornitore</div>
-                <div className="flex" style={{ gap: 5 }}>
-                  {[36, 48, 60].map((d) => {
-                    const ok = !!vD.r[d];
-                    return (
-                      <button key={d} disabled={!ok} onClick={() => setSupD(d)} style={{
-                        padding: "5px 10px", borderRadius: 4, cursor: ok ? "pointer" : "not-allowed",
-                        fontSize: 11.5, fontFamily: FONT,
-                        border: `1px solid ${d === supUse ? C.nuovo : C.line}`,
-                        background: d === supUse ? C.nuovo : "#fff",
-                        color: !ok ? C.mute : d === supUse ? "#fff" : C.ink2, opacity: ok ? 1 : 0.45,
-                      }}>{d}m<div style={{ fontSize: 9.5, fontFamily: MONO, opacity: 0.75 }}>
-                        {ok ? eur(vD.r[d]) : "n.d."}</div></button>
-                    );
+      {/* tabella durate */}
+      <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16, marginTop: 12 }}>
+        <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>Margine per durata, e quanto potremmo pagare</h2>
+        <p style={{ fontSize: 11.5, color: C.mute, margin: "0 0 10px" }}>
+          La rata massima è il prezzo oltre il quale non conviene firmare col fornitore, al mark-up impostato.
+        </p>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
+          <thead>
+            <tr style={{ color: C.mute, fontSize: 10 }}>
+              <th style={{ textAlign: "left", padding: "3px 0" }}>Modello</th>
+              <th style={{ textAlign: "left" }}>Fornitore</th>
+              <th style={{ textAlign: "right" }}>36 mesi</th>
+              <th style={{ textAlign: "right" }}>48 mesi</th>
+              <th style={{ textAlign: "right" }}>paghiamo</th>
+              <th style={{ textAlign: "right" }}>rata max</th>
+              <th style={{ textAlign: "right" }}>spazio</th>
+            </tr>
+          </thead>
+          <tbody style={{ fontFamily: MONO }}>
+            {conPrezzo.map((v) => {
+              const sp = v.fornMax - v.s.r;
+              return (
+                <tr key={v.m} style={{ borderTop: `1px solid ${C.line}` }}>
+                  <td style={{ padding: "5px 0", fontFamily: FONT }}>{v.m}</td>
+                  <td style={{ fontFamily: FONT, color: C.mute, fontSize: 10.5 }}>{v.f}</td>
+                  {[36, 48].map((d) => {
+                    const o = v.opz.find((x) => x.d === d);
+                    return <td key={d} style={{ textAlign: "right", color: !o ? C.mute : o.marg < 0 ? C.att : C.ok,
+                      fontWeight: o && v.s.d === d ? 600 : 400 }}>{o ? eur(o.marg) : "—"}</td>;
                   })}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, color: C.mute, marginBottom: 5 }}>Fermo tra clienti</div>
-                <div className="flex" style={{ gap: 5 }}>
-                  {Object.keys(FERMI).map((f) => (
-                    <button key={f} onClick={() => setFermoN(f)} style={{
-                      padding: "5px 10px", borderRadius: 4, cursor: "pointer", fontSize: 11.5, fontFamily: FONT,
-                      border: `1px solid ${f === fermoN ? C.nuovo : C.line}`,
-                      background: f === fermoN ? C.nuovo : "#fff", color: f === fermoN ? "#fff" : C.ink2,
-                    }}>{f}</button>
-                  ))}
-                </div>
-              </div>
-              <div style={{ flex: "1 1 180px" }}>
-                <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
-                  <span style={{ fontSize: 11.5, color: C.ink2 }}>Mark-up sul canone</span>
-                  <span style={{ fontFamily: MONO, fontSize: 12 }}>{mkPct}%</span>
-                </div>
-                <input type="range" min={0} max={25} step={1} value={mkPct} onChange={(e) => setMkPct(parseInt(e.target.value))} />
-              </div>
-              <div style={{ flex: "1 1 180px" }}>
-                <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
-                  <span style={{ fontSize: 11.5, color: C.ink2 }}>Svalutazione max a 60m</span>
-                  <span style={{ fontFamily: MONO, fontSize: 12 }}>{svalMax}%</span>
-                </div>
-                <input type="range" min={0} max={30} step={1} value={svalMax} onChange={(e) => setSvalMax(parseInt(e.target.value))} />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16, marginBottom: 12 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>Il listino per durata</h2>
-            <p style={{ fontSize: 11.5, color: C.mute, margin: "0 0 10px" }}>
-              A {km} km/mese. Il prezzo usato vale dal secondo noleggio in poi: il primo contratto alloca
-              un veicolo nuovo e non subisce svalutazione.
-            </p>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
-              <thead>
-                <tr style={{ color: C.mute, fontSize: 10 }}>
-                  <th style={{ textAlign: "left", padding: "3px 0" }}>Durata</th>
-                  <th style={{ textAlign: "right" }}>Contratti</th>
-                  <th style={{ textAlign: "right" }}>Mesi venduti</th>
-                  <th style={{ textAlign: "right" }}>Persi</th>
-                  <th style={{ textAlign: "right" }}>S/A</th>
-                  <th style={{ textAlign: "right" }}>Rata fissa</th>
-                  <th style={{ textAlign: "right" }}>Rata var.</th>
-                  <th style={{ textAlign: "right" }}>CANONE</th>
-                  <th style={{ textAlign: "right" }}>vs {supUse}m</th>
-                  <th style={{ textAlign: "right" }}>su usato</th>
-                  <th style={{ textAlign: "right" }}>Ayvens</th>
+                  <td style={{ textAlign: "right", color: C.mute }}>{eur(v.s.r)}</td>
+                  <td style={{ textAlign: "right" }}>{eur(v.fornMax)}</td>
+                  <td style={{ textAlign: "right", fontWeight: 600, color: sp < 0 ? C.att : C.ok }}>
+                    {sp >= 0 ? "+" : ""}{eur(sp)}
+                  </td>
                 </tr>
-              </thead>
-              <tbody style={{ fontFamily: MONO }}>
-                {griglia.map((g) => (
-                  <tr key={g.D} style={{ borderTop: `1px solid ${C.line}`, background: g.D === supUse ? "#EEF3FB" : "transparent" }}>
-                    <td style={{ padding: "5px 0", fontFamily: FONT, fontWeight: g.D === supUse ? 600 : 400 }}>{g.D} mesi</td>
-                    <td style={{ textAlign: "right", color: C.mute }}>{g.n}</td>
-                    <td style={{ textAlign: "right", color: C.mute }}>{g.A.toFixed(1)}</td>
-                    <td style={{ textAlign: "right", color: g.persi > 4 ? C.ayv : C.mute }}>{g.persi.toFixed(1)}</td>
-                    <td style={{ textAlign: "right", color: C.mute }}>{g.sa.toFixed(4)}</td>
-                    <td style={{ textAlign: "right" }}>{eur(g.fissa, 2)}</td>
-                    <td style={{ textAlign: "right", color: C.mute }}>{eur(g.varRata, 2)}</td>
-                    <td style={{ textAlign: "right", fontWeight: 600 }}>{eur(g.canone, 2)}</td>
-                    <td style={{ textAlign: "right", color: g.canone > rif.canone ? C.att : C.ok }}>
-                      {g.canone >= rif.canone ? "+" : ""}{((g.canone / rif.canone - 1) * 100).toFixed(1)}%
-                    </td>
-                    <td style={{ textAlign: "right", color: C.mute }}>
-                      {g.sconto > 0 ? eur(g.canoneUsato, 2) : "="}
-                    </td>
-                    <td style={{ textAlign: "right", color: !g.ay ? C.mute : g.canone <= g.ay ? C.ok : C.att }}>
-                      {g.ay ? eur(g.ay) : "no NLT"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div style={{ marginTop: 12, padding: "10px 12px", background: C.paper, borderLeft: `3px solid ${C.ayv}`, fontSize: 11.5, lineHeight: 1.55, color: C.ink2 }}>
-              Sotto i 36 mesi non esiste un benchmark NLT: leasing e broker quel prodotto non lo vendono.
-              I competitor reali sono gli abbonamenti auto — Bipi, Sixt+, Drivalia CarCloud, Carify — e i
-              loro prezzi non li abbiamo. Il sovrapprezzo che vedi sulle durate brevi copre il costo dei
-              mesi persi, non è un prezzo di mercato.
-            </div>
-          </div>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-          <div className="flex flex-wrap" style={{ gap: 12 }}>
-            <div style={{ flex: "1 1 340px", background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 10px" }}>Da dove viene il sovrapprezzo</h2>
-              {griglia.map((g) => {
-                const maxC = Math.max(...griglia.map((x) => x.canone));
-                const base = rif.fissa, extra = g.fissa - base;
-                return (
-                  <div key={g.D} style={{ marginBottom: 9 }}>
-                    <div className="flex justify-between" style={{ fontSize: 11, marginBottom: 2 }}>
-                      <span>{g.D} mesi</span>
-                      <span style={{ fontFamily: MONO, color: C.mute }}>
-                        {extra > 0.01 ? `+${eur(extra, 2)} per ${g.persi.toFixed(1)} mesi persi` : "nessun mese perso"}
-                      </span>
-                    </div>
-                    <div className="flex" style={{ height: 16, background: C.paper, borderRadius: 2, overflow: "hidden" }}>
-                      <div style={{ width: `${(base / maxC) * 100}%`, background: C.forn }} />
-                      <div style={{ width: `${(extra / maxC) * 100}%`, background: C.ayv }} />
-                      <div style={{ width: `${(g.varRata / maxC) * 100}%`, background: C.ass }} />
-                    </div>
-                  </div>
-                );
-              })}
-              <div className="flex flex-wrap" style={{ gap: 14, marginTop: 10, fontSize: 10.5, color: C.ink2 }}>
-                {[["Costo del veicolo", C.forn], ["Mesi di piazzale", C.ayv], ["Quota al km", C.ass]].map(([l, col]) => (
-                  <span key={l} className="flex items-center" style={{ gap: 5 }}>
-                    <span style={{ width: 10, height: 10, background: col, borderRadius: 2, display: "inline-block" }} />{l}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ flex: "1 1 320px", background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 10px" }}>Cosa cambia col fermo</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
-                <thead>
-                  <tr style={{ color: C.mute, fontSize: 10 }}>
-                    <th style={{ textAlign: "left", padding: "3px 0" }}>Durata</th>
-                    {Object.entries(FERMI).map(([n, g]) => (
-                      <th key={n} style={{ textAlign: "right" }}>{g} gg</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody style={{ fontFamily: MONO }}>
-                  {DURATE.filter((D) => D <= supUse).reverse().map((D) => (
-                    <tr key={D} style={{ borderTop: `1px solid ${C.line}` }}>
-                      <td style={{ padding: "5px 0", fontFamily: FONT }}>{D} mesi</td>
-                      {Object.values(FERMI).map((gg) => {
-                        const f = (vD.r[supUse] + cts) * riempi(supUse, D, gg).sa;
-                        return <td key={gg} style={{ textAlign: "right" }}>{eur(f, 2)}</td>;
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div style={{ marginTop: 10, fontSize: 11, color: C.mute, lineHeight: 1.5 }}>
-                Sulle durate lunghe il fermo non conta: il veicolo non torna mai in piazzale. Sulle brevi
-                decide tutto, ed è una questione operativa prima che di pricing.
-              </div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          <p style={{ fontSize: 13, color: C.ink2, margin: "0 0 14px", maxWidth: 730, lineHeight: 1.5 }}>
-            Rata fissa attuale comprensiva dell&apos;anticipo spalmato. Costo = fornitura + cost-to-serve;
-            l&apos;assicurazione è girata a costo e non produce margine.
-          </p>
-
-          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 14, marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: C.mute, marginBottom: 7 }}>Modello</div>
-            <div className="flex flex-wrap" style={{ gap: 5 }}>
-              {PTF.map((x) => (
-                <button key={x.m} onClick={() => { setSel(x.m); setKmP(x.km); }} style={{
-                  padding: "5px 9px", borderRadius: 4, cursor: "pointer", fontSize: 11.5, fontFamily: FONT,
-                  border: `1px solid ${x.m === sel ? C.nuovo : C.line}`,
-                  background: x.m === sel ? C.nuovo : "#fff", color: x.m === sel ? "#fff" : C.ink2,
-                }}>{x.m} <span style={{ opacity: 0.6, fontFamily: MONO, fontSize: 10 }}>{x.n}</span></button>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: C.ink, color: "#fff", borderRadius: 6, padding: "16px 22px", marginBottom: 12 }}>
-            <div className="flex flex-wrap" style={{ gap: 28 }}>
-              <div>
-                <div style={{ fontSize: 11, opacity: 0.6 }}>Canone attuale a {kmP} km</div>
-                <div style={{ fontFamily: MONO, fontSize: 26, color: "#FF8C7A" }}>{eur(calc.canoneAtt(kmP), 2)}</div>
-                <div style={{ fontSize: 10.5, opacity: 0.55, fontFamily: MONO }}>margine {eur(calc.margAtt(kmP), 2)}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, opacity: 0.6 }}>Canone nuovo a {kmP} km</div>
-                <div style={{ fontFamily: MONO, fontSize: 26, color: "#7FE3B8" }}>{eur(calc.canoneNew(kmP), 2)}</div>
-                <div style={{ fontSize: 10.5, opacity: 0.55, fontFamily: MONO }}>margine {eur(calc.margNew(kmP), 2)}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, opacity: 0.6 }}>Variazione di prezzo</div>
-                <div style={{ fontFamily: MONO, fontSize: 26 }}>
-                  {calc.canoneNew(kmP) >= calc.canoneAtt(kmP) ? "+" : ""}
-                  {((calc.canoneNew(kmP) / calc.canoneAtt(kmP) - 1) * 100).toFixed(0)}%
-                </div>
-                <div style={{ fontSize: 10.5, opacity: 0.55, fontFamily: MONO }}>{eur(calc.canoneNew(kmP) - calc.canoneAtt(kmP), 2)}</div>
-              </div>
-              {v.ay > 0 && (
-                <div>
-                  <div style={{ fontSize: 11, opacity: 0.6 }}>Ayvens {eur(v.ay)}</div>
-                  <div style={{ fontFamily: MONO, fontSize: 26, color: calc.canoneNew(kmP) <= v.ay ? "#7FE3B8" : "#FF8C7A" }}>
-                    {calc.canoneNew(kmP) > v.ay ? "+" : ""}{((calc.canoneNew(kmP) / v.ay - 1) * 100).toFixed(0)}%
-                  </div>
-                  <div style={{ fontSize: 10.5, opacity: 0.55, fontFamily: MONO }}>
-                    competitivi fino a {calc.sogliaNew > 0 ? Math.round(calc.sogliaNew) : 0} km
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16, marginBottom: 12 }}>
-            <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
-              <div className="flex" style={{ gap: 5 }}>
-                {["canone", "margine"].map((x) => (
-                  <button key={x} onClick={() => setVista(x)} style={{
-                    padding: "4px 11px", borderRadius: 4, cursor: "pointer", fontSize: 11.5, fontFamily: FONT,
-                    border: `1px solid ${x === vista ? C.ink : C.line}`,
-                    background: x === vista ? C.ink : "#fff", color: x === vista ? "#fff" : C.ink2,
-                  }}>{x === "canone" ? "Canone al cliente" : "Margine Flee"}</button>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center" style={{ gap: 14, fontSize: 11, color: C.ink2 }}>
-                {serie.map((s) => (
-                  <span key={s.k} className="flex items-center" style={{ gap: 5 }}>
-                    <span style={{ width: 14, height: 3, background: s.col, display: "inline-block" }} />{s.lab}
-                  </span>
-                ))}
-                {vista === "canone" && v.ay > 0 && (
-                  <span className="flex items-center" style={{ gap: 5 }}>
-                    <span style={{ width: 14, height: 3, background: C.ayv, display: "inline-block" }} />Ayvens
-                  </span>
-                )}
-              </div>
-            </div>
-            <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
-              {[0, 0.25, 0.5, 0.75, 1].map((f) => {
-                const e = yMin + (yMax - yMin) * f;
-                return (<g key={f}>
-                  <line x1={PL} y1={Y(e)} x2={W - PR} y2={Y(e)} stroke={C.line} />
-                  <text x={PL - 7} y={Y(e) + 4} textAnchor="end" fontSize="10" fill={C.mute} fontFamily={MONO}>{Math.round(e)}</text>
-                </g>);
-              })}
-              {yMin < 0 && <line x1={PL} y1={Y(0)} x2={W - PR} y2={Y(0)} stroke={C.ink2} strokeWidth="1.2" />}
-              {[0, 250, 500, 750, 1000, 1250].map((q) => (
-                <text key={q} x={X(q)} y={H - PB + 15} textAnchor="middle" fontSize="10" fill={C.mute} fontFamily={MONO}>{q}</text>
-              ))}
-              <text x={(PL + W - PR) / 2} y={H - 3} textAnchor="middle" fontSize="10.5" fill={C.ink2}>km percorsi al mese</text>
-              <rect x={X(v.kmin)} y={PT} width={X(v.kmax) - X(v.kmin)} height={H - PT - PB} fill={C.nuovo} opacity="0.045" />
-              <text x={X(v.kmin) + 4} y={PT + 11} fontSize="9.5" fill={C.mute} fontFamily={MONO}>km reali {v.kmin}–{v.kmax}</text>
-              {vista === "canone" && v.ay > 0 && (
-                <line x1={PL} y1={Y(v.ay)} x2={W - PR} y2={Y(v.ay)} stroke={C.ayv} strokeWidth="2" strokeDasharray="6 4" />
-              )}
-              {serie.map((s) => <path key={s.k} d={path(s.f)} fill="none" stroke={s.col} strokeWidth="2.5" />)}
-              <line x1={X(kmP)} y1={PT} x2={X(kmP)} y2={H - PB} stroke={C.ink} opacity="0.3" />
-              {serie.map((s) => <circle key={s.k} cx={X(kmP)} cy={Y(s.f(kmP))} r="4.5" fill={s.col} stroke="#fff" strokeWidth="2" />)}
-              <circle cx={X(v.km)} cy={H - PB} r="3.5" fill={C.ink} />
-              <text x={X(v.km)} y={H - PB - 6} textAnchor="middle" fontSize="9.5" fill={C.ink} fontFamily={MONO}>media {v.km}</text>
-            </svg>
-            <div style={{ marginTop: 8 }}>
-              <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
-                <span style={{ fontSize: 11.5, color: C.ink2 }}>Km al mese</span>
-                <span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 600 }}>{kmP} km</span>
-              </div>
-              <input type="range" min={0} max={KM_MAX} step={10} value={kmP} onChange={(e) => setKmP(parseInt(e.target.value))} />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap" style={{ gap: 12 }}>
-            <div style={{ flex: "1 1 330px", background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 10px" }}>Dove mettere il margine</h2>
-              <div className="flex flex-wrap" style={{ gap: 5, marginBottom: 14 }}>
-                {Object.keys(SCENARI).map((s) => (
-                  <button key={s} onClick={() => applica(s)} style={{
-                    padding: "5px 10px", borderRadius: 4, cursor: "pointer", fontSize: 11.5, fontFamily: FONT,
-                    border: `1px solid ${s === scen ? C.nuovo : C.line}`,
-                    background: s === scen ? C.nuovo : "#fff", color: s === scen ? "#fff" : C.ink2,
-                  }}>{s}</button>
-                ))}
-              </div>
-              <Slider lab="Margine target sul canone" val={margPct} set={lib(setMargPct)} mn={0} mx={25} st={1} u="%" />
-              <Slider lab="Quota del margine caricata sul km" val={quota} set={lib(setQuota)} mn={0} mx={100} st={5} u="%" />
-              <Slider lab="Km inclusi nella rata fissa" val={kmIncl} set={lib(setKmIncl)} mn={0} mx={800} st={25} u="km" />
-              <div style={{ paddingTop: 10, borderTop: `1px solid ${C.line}`, fontSize: 11.5, lineHeight: 1.7, color: C.ink2 }}>
-                <div className="flex justify-between"><span>Costo fornitura</span><span style={{ fontFamily: MONO }}>{eur(v.fo, 2)}</span></div>
-                <div className="flex justify-between"><span>Cost-to-serve</span><span style={{ fontFamily: MONO }}>{eur(cts, 2)}</span></div>
-                <div className="flex justify-between" style={{ fontWeight: 600, color: C.ink }}>
-                  <span>Margine a {v.km} km</span><span style={{ fontFamily: MONO }}>{eur(calc.M, 2)}</span></div>
-                <div className="flex justify-between"><span>· sulla rata fissa</span><span style={{ fontFamily: MONO }}>{eur(calc.margFisso, 2)}</span></div>
-                <div className="flex justify-between"><span>· sul km</span>
-                  <span style={{ fontFamily: MONO }}>{calc.mkKm.toFixed(4)} €/km</span></div>
-                <div className="flex justify-between" style={{ fontWeight: 600, color: C.ink, marginTop: 4 }}>
-                  <span>Rata fissa nuova</span><span style={{ fontFamily: MONO }}>{eur(calc.fissaNew, 2)}</span></div>
-                <div className="flex justify-between"><span>Rata fissa attuale</span><span style={{ fontFamily: MONO }}>{eur(v.fissa, 2)}</span></div>
-                <div className="flex justify-between"><span>Tariffa Generali</span><span style={{ fontFamily: MONO }}>{v.ir.toFixed(4)} €/km</span></div>
-              </div>
-            </div>
-
-            <div style={{ flex: "2 1 430px", background: C.card, border: `1px solid ${C.line}`, borderRadius: 6, padding: 16 }}>
-              <h2 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>Tutti i modelli ai km medi reali</h2>
-              <p style={{ fontSize: 11.5, color: C.mute, margin: "0 0 10px" }}>Con i parametri impostati a sinistra.</p>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
-                <thead>
-                  <tr style={{ color: C.mute, fontSize: 10 }}>
-                    <th style={{ textAlign: "left", padding: "3px 0" }}>Modello</th>
-                    <th style={{ textAlign: "right" }}>n</th>
-                    <th style={{ textAlign: "right" }}>km</th>
-                    <th style={{ textAlign: "right" }}>Marg. att.</th>
-                    <th style={{ textAlign: "right" }}>Marg. new</th>
-                    <th style={{ textAlign: "right" }}>Prezzo new</th>
-                    <th style={{ textAlign: "right" }}>Ayvens</th>
-                  </tr>
-                </thead>
-                <tbody style={{ fontFamily: MONO }}>
-                  {PTF.map((x) => {
-                    const e = motore(x, x.km);
-                    const ma = x.fissa + x.km * x.vp - e.cnk;
-                    const mn = e.margNew(x.km);
-                    const pn = e.canoneNew(x.km);
-                    return (
-                      <tr key={x.m} style={{ borderTop: `1px solid ${C.line}`, background: x.m === sel ? "#EEF3FB" : "transparent" }}>
-                        <td style={{ padding: "5px 0", fontFamily: FONT, fontWeight: x.m === sel ? 600 : 400 }}>{x.m}</td>
-                        <td style={{ textAlign: "right", color: C.mute }}>{x.n}</td>
-                        <td style={{ textAlign: "right", color: C.mute }}>{x.km}</td>
-                        <td style={{ textAlign: "right", color: ma < 0 ? C.att : C.ok }}>{eur(ma)}</td>
-                        <td style={{ textAlign: "right", color: mn < 0 ? C.att : C.ok }}>{eur(mn)}</td>
-                        <td style={{ textAlign: "right" }}>{eur(pn)}</td>
-                        <td style={{ textAlign: "right", color: !x.ay ? C.mute : pn <= x.ay ? C.ok : C.att }}>
-                          {x.ay ? (pn <= x.ay ? "sotto" : "sopra") : "—"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
-
-      <p style={{ fontSize: 11, color: C.mute, marginTop: 14, lineHeight: 1.55, maxWidth: 810 }}>
-        La rata fissa assume un solo contratto per veicolo, senza fermo tra un cliente e l&apos;altro.
-        Ripristino al rientro e penali sui km eccedenti restano fuori. Il confronto regge solo se i prezzi
-        Ayvens sono netto IVA come i vostri: se fossero lordi, gli spazi si riducono di circa il 18%.
+      <p style={{ fontSize: 11, color: C.mute, marginTop: 14, lineHeight: 1.55, maxWidth: 820 }}>
+        Canoni fornitore netto IVA, catalogo luglio-agosto 2026. Prezzo di mercato: quotazione Ayvens a 10.000 km/anno e anticipo zero, settembre 2026. Due modelli sono quotati in un allestimento diverso dal nostro — Audi A3 e Tesla Model 3 — e il prezzo è riscalato sul rapporto tra i listini. Contratto unico, senza fermo tra un cliente e l’altro. Ripristino al rientro e penali sui km eccedenti restano fuori.
       </p>
     </div>
   );

@@ -1,7 +1,11 @@
 # Flee · Simulatore pricing
 
 Strumento di supporto alle decisioni di sourcing e pricing per il prodotto
-pay-per-use Flee. Tre schede:
+pay-per-use Flee. In cima alla pagina c'è un riquadro **Come si usa** che spiega
+in quattro passaggi come impostare lo scenario, leggere il margine, usare lo
+score e correggere i prezzi di mercato.
+
+Tre schede:
 
 - **Vetture da ordinare** — scomposizione del prezzo di mercato per ciascuna
   vettura del listino fornitori, con verdetto di acquisto.
